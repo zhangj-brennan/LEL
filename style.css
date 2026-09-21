@@ -28,6 +28,58 @@ body {
   margin: 0 auto;
 }
 
+.grants-section {
+  max-width: 900px;
+  margin-top: 28px;
+}
+.grants-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-family: "BentonStrong";
+  font-weight: normal;
+  text-transform: uppercase;
+}
+.grants-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.grant-card {
+  background: white;
+  border-top: 3px solid black;
+  padding: 8px 6px 0;
+}
+.grant-card h3 {
+  margin: 0;
+  font-size: 13px;
+  font-family: "BentonStrong";
+  font-weight: normal;
+  color: black;
+}
+.grant-card p {
+  margin: 6px 0 0;
+  font-family: "Benton";
+  font-size: 11px;
+  line-height: 1.3;
+  color: #000000;
+}
+
+.footnote {
+  max-width: 900px;
+  margin-top: 28px;
+  font-family: "Benton";
+  font-size: 11px;
+  line-height: 1.4;
+  color: #000000;
+}
+.footnote p {
+  margin: 0 0 4px;
+}
+.footnote strong {
+  font-family: "BentonStrong";
+  font-weight: normal;
+}
+
 .figure-label {
   max-width: 900px;
   font-size: 12px;
@@ -72,6 +124,9 @@ h1 {
   display: flex;
   justify-content: center;
   padding-top: clamp(14px, 3vw, 32px);
+}
+.tree > ul {
+  padding-top: 0;
 }
 
 /* The branches row (COPS/OJP/OVW) uses proportional grid columns instead
@@ -165,7 +220,7 @@ h1 {
 }
 
 .node .name {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .node.cops .node-header strong,
@@ -252,9 +307,13 @@ h1 {
 }
 @media (min-width: 701px) {
   /* Offices are only collapsible on mobile; always show the body on desktop
-     regardless of the <details> element's native open/closed state. */
+     regardless of the <details> element's native open/closed state, and
+     don't hint at interactivity that a script blocks anyway. */
   .node.ojp .offices > li .office-body {
     display: block !important;
+  }
+  .node.ojp .offices > li .office-header {
+    cursor: default;
   }
 }
 
@@ -304,7 +363,7 @@ h1 {
 }
 
 .office-name {
-  font-family: "Benton";
+  font-family: "BentonStrong";
   font-size: 11px;
   line-height: 1;
   color: #007194;
@@ -313,7 +372,11 @@ h1 {
 .node p {
   margin-top: 8px;
   font-family: "Benton";
-  font-size: 12px;
+  font-size: 11px;
+}
+.node p.label {
+  font-family: "Benton";
+  line-height: 1;
 }
 .node .placeholder-list {
   margin-top: 6px;
@@ -325,7 +388,7 @@ h1 {
   list-style: disc;
   margin-top: 4px;
   font-family: "Benton";
-  font-size: 12px;
+  font-size: 11px;
 }
 .node .placeholder-list li:first-child {
   margin-top: 0;
@@ -402,5 +465,9 @@ h1 {
   }
   .node.ojp .offices > li details[open] .office-header::before {
     content: "\25be";
+  }
+
+  .grants-grid {
+    grid-template-columns: 1fr;
   }
 }

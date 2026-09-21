@@ -27,7 +27,7 @@
                       <summary class="office-header"><strong>BJA</strong><br><span class="office-name">Bureau of Justice Assistance</span></summary>
                       <div class="office-body">
                         <p>Funds law enforcement, courts, corrections, treatment, reentry, justice information sharing, and community-based partners.</p>
-                        <p><strong>Examples</strong></p>
+                        <p class="label">Examples</p>
                         <ul class="placeholder-list">
                           <li>Byrne JAG</li>
                           <li>Adult Treatment Court Program</li>
@@ -40,7 +40,7 @@
                       <summary class="office-header"><strong>BJS</strong><br><span class="office-name">Bureau of Justice Statistics</span></summary>
                       <div class="office-body">
                         <p>DOJ&rsquo;s primary statistical agency. Collects and publishes criminal justice data.</p>
-                        <p><strong>Focus</strong></p>
+                        <p class="label">Focus</p>
                         <ul class="placeholder-list">
                           <li>Crime and victimization data</li>
                           <li>Justice system statistics</li>
@@ -53,7 +53,7 @@
                       <summary class="office-header"><strong>NIJ</strong><br><span class="office-name">National Institute of Justice</span></summary>
                       <div class="office-body">
                         <p>DOJ&rsquo;s research, evaluation, and technology agency.</p>
-                        <p><strong>Focus</strong></p>
+                        <p class="label">Focus</p>
                         <ul class="placeholder-list">
                           <li>Evidence and innovation</li>
                           <li>Forensic and school safety research</li>
@@ -66,7 +66,7 @@
                       <summary class="office-header"><strong>OJJDP</strong><br><span class="office-name">Office of Juvenile Justice &amp; Delinquency Prevention</span></summary>
                       <div class="office-body">
                         <p>Funds efforts to prevent delinquency and improve juvenile justice systems.</p>
-                        <p><strong>Examples</strong></p>
+                        <p class="label">Examples</p>
                         <ul class="placeholder-list">
                           <li>Title II Formula Grants</li>
                           <li>Youth justice and mentoring programs</li>
@@ -79,7 +79,7 @@
                       <summary class="office-header"><strong>OVC</strong><br><span class="office-name">Office for Victims of Crime</span></summary>
                       <div class="office-body">
                         <p>Funds victim compensation and victim assistance.</p>
-                        <p><strong>Focus</strong></p>
+                        <p class="label">Focus</p>
                         <ul class="placeholder-list">
                           <li>Victim services</li>
                           <li>Support for underserved victims</li>
@@ -92,7 +92,7 @@
                       <summary class="office-header"><strong>SMART</strong><br><span class="office-name">Office of Sex Offender Sentencing, Monitoring, Apprehending, Registering, and Tracking</span></summary>
                       <div class="office-body">
                         <p>Administers the Sex Offender Registration and Notification Act (SORNA).</p>
-                        <p><strong>Focus</strong></p>
+                        <p class="label">Focus</p>
                         <ul class="placeholder-list">
                           <li>Registry implementation</li>
                           <li>Compliance and notification tools</li>
@@ -108,7 +108,7 @@
                 <div class="node-header"><strong>COPS</strong><span class="name">Community Oriented Policing Services</span></div>
                 <div class="node-body">
                   <p>Provides funding for community policing nationwide to reduce crime and build trust between law enforcement and communities.</p>
-                  <p><strong>Key Areas</strong></p>
+                  <p class="label">Key Areas</p>
                   <ul class="placeholder-list">
                     <li>Law enforcement hiring</li>
                     <li>Community policing development</li>
@@ -123,7 +123,7 @@
                 <div class="node-header"><strong>OVW</strong><span class="name">Office on Violence Against Women</span></div>
                 <div class="node-body">
                   <p>Implements the Violence Against Women Act (VAWA) to address domestic violence, dating violence, sexual assault, and stalking.</p>
-                  <p><strong>Key Areas</strong></p>
+                  <p class="label">Key Areas</p>
                   <ul class="placeholder-list">
                     <li>Law enforcement and prosecution strategies</li>
                     <li>Victim services</li>
@@ -136,20 +136,62 @@
         </li>
       </ul>
     </div>
+
+    <div class="grants-section">
+      <h2 class="grants-title">Types of DOJ Grants</h2>
+      <div class="grants-grid">
+        <div class="grant-card">
+          <h3>Discretionary Grants</h3>
+          <p>Competitive awards. Solicitations state how many awards DOJ expects to make and the maximum amount.</p>
+          <p>Example: BJA Adult Treatment Court Program.</p>
+        </div>
+        <div class="grant-card">
+          <h3>Formula Grants</h3>
+          <p>Awarded by formula set in statute or appropriations acts. Recipients still apply and must meet specified requirements.</p>
+          <p>Examples: Byrne JAG State Formula; OJJDP Title II Formula Grants.</p>
+        </div>
+        <div class="grant-card">
+          <h3>Congressional Earmarks</h3>
+          <p>Congressionally directed spending for named recipients and specific projects, typically advanced through annual appropriations.</p>
+          <p>Use: One-year projects identified by Congress.</p>
+        </div>
+        <div class="grant-card">
+          <h3>Cooperative Agreements</h3>
+          <p>Usually discretionary awards for a public purpose with substantial federal involvement, often for training or technical assistance.</p>
+          <p>Examples: LETTAC; National Reentry Resource Center.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footnote">
+      <p><strong>Note:</strong> Each office administers awards separately, with different requirements, accountability measures, and scope. Many DOJ grants provide three years of funding, and grantees can often reapply if the funding stream continues.</p>
+      <p>Accurate as of August 2026</p>
+    </div>
   </div>
 
   <script>
     (function () {
       var MOBILE_BREAKPOINT = 700;
+      function isDesktop() {
+        return window.innerWidth > MOBILE_BREAKPOINT;
+      }
       function syncOffices() {
-        var isDesktop = window.innerWidth > MOBILE_BREAKPOINT;
-        if (!isDesktop) return;
+        if (!isDesktop()) return;
         document.querySelectorAll('.office-details').forEach(function (d) {
           d.open = true;
         });
       }
       syncOffices();
       window.addEventListener('resize', syncOffices);
+
+      // On desktop the offices aren't meant to be collapsible at all, so
+      // block the native toggle at the click itself rather than relying on
+      // CSS to paper over a toggle that still happens underneath.
+      document.querySelectorAll('.office-header').forEach(function (summary) {
+        summary.addEventListener('click', function (e) {
+          if (isDesktop()) e.preventDefault();
+        });
+      });
     })();
   </script>
 </body>

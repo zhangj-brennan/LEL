@@ -28,6 +28,13 @@ body {
   margin: 0 auto;
 }
 
+.figure-label {
+  max-width: 900px;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-family: "BentonStrong";
+}
+
 #title {
   max-width: 900px;
   border-top: 2px solid black;
@@ -65,6 +72,16 @@ h1 {
   display: flex;
   justify-content: center;
   padding-top: clamp(14px, 3vw, 32px);
+}
+
+/* The branches row (COPS/OJP/OVW) uses proportional grid columns instead
+   of flex, so it shrinks fluidly to fit any width down to the mobile
+   breakpoint, rather than overflowing once it hits the boxes' fixed
+   pixel widths. Ratio matches OJP being 2x COPS/OVW's width. */
+.tree > ul > li > ul {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  width: 100%;
 }
 
 .tree li {
@@ -187,10 +204,10 @@ h1 {
   text-align: left;
   background: white;
   padding: 0;
-  width: 200px;
+  width: 100%;
+  max-width: 200px;
 }
 .node.ojp {
-  width: 400px;
   max-width: 400px;
   color: #007194;
 }
@@ -213,16 +230,32 @@ h1 {
 .node.ovw .node-body {
   padding: 0 5px clamp(6px, 1vw, 10px);
 }
+.node.ojp .offices > li .office-details {
+  display: block;
+}
 .node.ojp .offices > li .office-header {
+  display: block;
   background: white;
-  border-top: 4px solid #007194;
+  border-top: 3px solid #007194;
   padding: 6px 6px 4px;
   line-height: 0.9;
+  list-style: none;
+  cursor: pointer;
+}
+.node.ojp .offices > li .office-header::-webkit-details-marker {
+  display: none;
 }
 .node.ojp .offices > li .office-body {
   background: white;
   margin-top: 6px;
   padding: 0 6px 6px;
+}
+@media (min-width: 701px) {
+  /* Offices are only collapsible on mobile; always show the body on desktop
+     regardless of the <details> element's native open/closed state. */
+  .node.ojp .offices > li .office-body {
+    display: block !important;
+  }
 }
 
 /* Content inside the white/black body areas (OJP's office list and each
@@ -296,4 +329,78 @@ h1 {
 }
 .node .placeholder-list li:first-child {
   margin-top: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile: COPS / OJP / OVW stack vertically instead of sitting in a   */
+/* row, the DOJ box left-justifies, and all connector lines (the bus   */
+/* between siblings and the drop down from DOJ) are removed.          */
+/* ------------------------------------------------------------------ */
+@media (max-width: 700px) {
+  .tree > ul {
+    justify-content: flex-start;
+  }
+  .tree > ul > li > ul {
+    grid-template-columns: 1fr;
+  }
+  .tree > ul > li > ul > li {
+    padding: 0;
+    margin-top: 28px;
+  }
+  .tree > ul > li > ul > li:first-child {
+    margin-top: 0;
+  }
+  .tree > ul > li > ul > li::before,
+  .tree > ul > li > ul > li::after {
+    display: none;
+  }
+  .tree ul ul::before {
+    display: none;
+  }
+
+  .node.top {
+    text-align: left;
+    width: 100%;
+    max-width: 100%;
+  }
+  .node.cops,
+  .node.ojp,
+  .node.ovw {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .node.ojp .offices {
+    grid-template-columns: 1fr;
+    padding-left: 20px;
+    gap: 0;
+  }
+
+  /* Tighten vertical rhythm between collapsed office items */
+  .node .offices li {
+    margin-top: 0;
+  }
+  .node.ojp .offices > li .office-header {
+    padding: 5px 6px 1px;
+  }
+
+  /* Disclosure arrow to the left of each office name, showing there's
+     more to expand. Reflects the <details> element's real open state,
+     which is why it's mobile-only — desktop forces the body open via
+     CSS regardless of that native state, so the arrow would be misleading
+     there. */
+  .node.ojp .offices > li .office-header {
+    position: relative;
+    padding-left: 18px;
+  }
+  .node.ojp .offices > li .office-header::before {
+    content: "\25b8";
+    position: absolute;
+    left: 2px;
+    top: 6px;
+    color: #007194;
+  }
+  .node.ojp .offices > li details[open] .office-header::before {
+    content: "\25be";
+  }
 }

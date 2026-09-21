@@ -1,0 +1,299 @@
+@font-face {
+  font-family: "Benton";
+  src: url("Benton Sans/Benton Sans Book.otf");
+}
+
+@font-face {
+  font-family: "BentonStrong";
+  src: url("Benton Sans/Benton Sans Bold.otf");
+}
+
+@font-face {
+  font-family: "BentonMedium";
+  src: url("Benton Sans/Benton Sans Medium.otf");
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px 16px 48px;
+  background: #ffffff;
+  color: #000000;
+  font-family: "Benton", sans-serif;
+}
+
+#container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+#title {
+  max-width: 900px;
+  border-top: 2px solid black;
+  padding-top: 12px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1;
+  font-family: "BentonStrong";
+}
+
+/* ------------------------------------------------------------------ */
+/* DOJ org chart (doj.html) — pure CSS tree, no SVG                    */
+/* font-size is always 14px; only spacing responds to window width.   */
+/* ------------------------------------------------------------------ */
+.tree,
+.tree ul,
+.tree li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.tree {
+  display: flex;
+  justify-content: center;
+  padding: 0 8px 24px;
+  overflow-x: auto;
+}
+
+.tree ul {
+  display: flex;
+  justify-content: center;
+  padding-top: clamp(14px, 3vw, 32px);
+}
+
+.tree li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(14px, 3vw, 32px) clamp(6px, 1.5vw, 16px) 0;
+}
+
+.tree li::before,
+.tree li::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  height: clamp(14px, 3vw, 32px);
+  border-top: 2px solid black;
+}
+.tree li::before {
+  right: 50%;
+  width: 50%;
+}
+.tree li::after {
+  left: 50%;
+  right: auto;
+  width: 50%;
+  border-left: 2px solid black;
+}
+.tree li:only-child::before,
+.tree li:only-child::after {
+  display: none;
+}
+.tree li:first-child::before,
+.tree li:last-child::after {
+  border: none;
+}
+.tree li:last-child::before {
+  border-right: 2px solid black;
+}
+.tree li:first-child::after {
+  border-left: 2px solid black;
+}
+.tree ul ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: clamp(14px, 3vw, 32px);
+  border-left: 2px solid black;
+}
+
+.node {
+  display: inline-block;
+  max-width: 200px;
+  background: white;
+  padding: clamp(6px, 1vw, 10px) clamp(8px, 1.2vw, 14px);
+  font-family: "BentonMedium";
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+}
+.node.top {
+  max-width: 340px;
+  padding: 10px 10px 0;
+  font-size: 18px;
+}
+.node.top .dept {
+  display: inline-block;
+  font-size: 26px;
+}
+.node.top .grantmaking {
+  display: inline-block;
+  padding: 0 10px;
+  font-family: "Benton";
+}
+
+.node strong {
+  font-family: "BentonStrong";
+  font-weight: normal;
+}
+
+.node .name {
+  font-size: 12px;
+}
+
+.node.cops .node-header strong,
+.node.ojp .node-header strong,
+.node.ovw .node-header strong {
+  display: block;
+  width: 100%;
+  border-top: 6px solid black;
+  padding-top: 4px;
+}
+.node.ojp .node-header strong {
+  color: #007194;
+  border-top-color: #007194;
+}
+.node.cops .node-header strong {
+  color: #3995b2;
+  border-top-color: #3995b2;
+}
+.node.ovw .node-header strong {
+  color: #00415b;
+  border-top-color: #00415b;
+}
+.node.ojp .name { color: #007194; }
+.node.cops .name { color: #3995b2; }
+.node.ovw .name { color: #00415b; }
+
+.node.cops .name,
+.node.ojp .name,
+.node.ovw .name {
+  line-height: 1;
+}
+
+.node.cops,
+.node.ojp,
+.node.ovw {
+  text-align: left;
+  background: white;
+  padding: 0;
+  width: 200px;
+}
+.node.ojp {
+  width: 400px;
+  max-width: 400px;
+  color: #007194;
+}
+.node.cops {
+  color: #3995b2;
+}
+.node.ovw {
+  color: #00415b;
+}
+.node.cops .node-header,
+.node.ojp .node-header,
+.node.ovw .node-header {
+  background: white;
+  font-size: 18px;
+  line-height: 0.9;
+  padding: 0 5px clamp(6px, 1vw, 10px);
+}
+.node.ojp .offices,
+.node.cops .node-body,
+.node.ovw .node-body {
+  padding: 0 5px clamp(6px, 1vw, 10px);
+}
+.node.ojp .offices > li .office-header {
+  background: white;
+  border-top: 4px solid #007194;
+  padding: 6px 6px 4px;
+  line-height: 0.9;
+}
+.node.ojp .offices > li .office-body {
+  background: white;
+  margin-top: 6px;
+  padding: 0 6px 6px;
+}
+
+/* Content inside the white/black body areas (OJP's office list and each
+   office's own text, COPS/OVW's placeholder text) is explicitly reset — a
+   nested <ul> here is technically a "ul ul" and its <li>s are "tree li", so
+   without this they'd inherit the branch-tree's flex layout, connector-line
+   pseudo-elements, and padding. */
+.node .offices,
+.node .offices li,
+.node p,
+.node .placeholder-list,
+.node .placeholder-list li {
+  display: block;
+  position: static;
+  padding: 0;
+  margin: 0;
+}
+.node .offices {
+  margin-top: 8px;
+  text-align: left;
+}
+.node .offices li {
+  margin-top: 6px;
+}
+.node .offices li:first-child {
+  margin-top: 0;
+}
+.node.ojp .offices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 28px;
+}
+.node.ojp .offices li {
+  margin-top: 0;
+}
+.node .offices::before,
+.node .offices::after,
+.node .offices li::before,
+.node .offices li::after,
+.node .placeholder-list::before,
+.node .placeholder-list::after,
+.node .placeholder-list li::before,
+.node .placeholder-list li::after {
+  content: none;
+  display: none;
+}
+
+.office-name {
+  font-family: "Benton";
+  font-size: 11px;
+  line-height: 1;
+  color: #007194;
+}
+
+.node p {
+  margin-top: 8px;
+  font-family: "Benton";
+  font-size: 12px;
+}
+.node .placeholder-list {
+  margin-top: 6px;
+  padding-left: 14px;
+  list-style: disc;
+}
+.node .placeholder-list li {
+  display: list-item;
+  list-style: disc;
+  margin-top: 4px;
+  font-family: "Benton";
+  font-size: 12px;
+}
+.node .placeholder-list li:first-child {
+  margin-top: 0;
+}

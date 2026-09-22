@@ -104,7 +104,37 @@ h1.wrap-title {
 }
 
 /* ------------------------------------------------------------------ */
-/* DOJ org chart (doj.html) — pure CSS tree, no SVG                    */
+/* index.html — plain list of the figures in this site                */
+/* ------------------------------------------------------------------ */
+.index-list {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  max-width: 900px;
+}
+.index-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid black;
+}
+.index-list a {
+  font-family: "BentonMedium";
+  font-size: 16px;
+  color: black;
+  text-decoration: none;
+}
+.index-list a:hover {
+  text-decoration: underline;
+}
+.index-list .index-note {
+  display: block;
+  margin-top: 2px;
+  font-family: "Benton";
+  font-size: 13px;
+  color: #555555;
+}
+
+/* ------------------------------------------------------------------ */
+/* DOJ org chart (figure2.html) — pure CSS tree, no SVG                */
 /* font-size is always 14px; only spacing responds to window width.   */
 /* ------------------------------------------------------------------ */
 .tree,
@@ -592,6 +622,29 @@ h1.wrap-title {
 /* ------------------------------------------------------------------ */
 /* figure3.html — Officer P's Journey                                  */
 /* ------------------------------------------------------------------ */
+.op-intro-row {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+.op-intro-row .op-intro,
+.op-intro-row .op-appropriations {
+  flex: 1 1 0;
+  min-width: 0;
+  margin-top: 0;
+}
+.op-challenges-row {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  margin-top: 24px;
+}
+.op-challenges-row .op-challenges,
+.op-challenges-row .op-changes {
+  flex: 1 1 0;
+  min-width: 0;
+  margin-top: 0;
+}
 .op-intro h2,
 .op-appropriations h2,
 .op-challenges h2,
@@ -603,7 +656,7 @@ h1.wrap-title {
   text-transform: uppercase;
 }
 .op-intro p,
-.op-challenges p {
+.op-appropriations p {
   margin: 0 0 8px;
   font-family: "Benton";
   font-size: 12px;
@@ -687,6 +740,7 @@ h1.wrap-title {
   line-height: 1.5;
   max-width: 700px;
 }
+.op-challenges ul,
 .op-changes ul {
   margin: 8px 0 0;
   padding-left: 20px;
@@ -702,13 +756,29 @@ h1.wrap-title {
     gap: 8px;
   }
 
+  .op-intro-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  .op-intro-row .op-appropriations {
+    margin-top: 24px;
+  }
+
+  .op-challenges-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  .op-challenges-row .op-changes {
+    margin-top: 24px;
+  }
+
   .phase-title {
     background: #ed1c24;
     color: white;
   }
 
   /* Bump up the smaller content text sizes for mobile readability,
-     across doj.html, figure1.html, and figure3.html. */
+     across figure2.html, figure1.html, and figure3.html. */
   .deck {
     font-size: 14px;
   }
@@ -730,8 +800,9 @@ h1.wrap-title {
   }
   .op-step p,
   .op-intro p,
-  .op-challenges p,
+  .op-appropriations p,
   .op-approp-list,
+  .op-challenges ul,
   .op-changes ul,
   .op-reports {
     font-size: 14px;
@@ -885,6 +956,6 @@ h1.wrap-title {
   width: 100%;
   max-width: 900px;
   height: auto;
-  margin: 0 20px;
+  margin: 0;
   overflow: visible;
 }

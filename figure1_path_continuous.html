@@ -313,8 +313,35 @@
         // naturally from rowHeight - strokeWidth.
         var bottomPad = rowHeight - strokeWidth / 2 + 10;
 
+        var flatSingleCol = (segsPerRow === 1 && !showCurves);
+
+        // In the flat mobile layout, each row's height follows its own
+        // description length (how many lines it wraps into) plus extra
+        // room when the NEXT step starts a new phase and needs a label
+        // above it, instead of one fixed rowHeight for every row.
+        var rowYs = null;
+        var vbHeight;
+        if (flatSingleCol) {
+          var descFontSize = 12;
+          var descLineHeight = descFontSize * 1.05;
+          // Matches stepDesc's own maxWidth math for this layout: segW
+          // (=rowWidth, since MARGIN is 0 here) + overhang*2 + rightExtra - pad*2.
+          var descMaxWidth = rowWidth + 15 * 2 + 20 - 10 * 2;
+          rowYs = [topPad];
+          for (var s = 1; s < TOTAL; s++) {
+            var lines = wrapLineCount(DESCRIPTIONS[s - 1], descFontSize, descMaxWidth, 0.5);
+            var textHeight = lines * descLineHeight;
+            var hasLabelAboveNext = PHASES.indexOf(PHASES[s]) === s;
+            var gap = strokeWidth + 10 + textHeight + 14 + (hasLabelAboveNext ? 24 : 0);
+            rowYs.push(rowYs[rowYs.length - 1] + gap);
+          }
+          var lastLines = wrapLineCount(DESCRIPTIONS[TOTAL - 1], descFontSize, descMaxWidth, 0.5);
+          vbHeight = rowYs[rowYs.length - 1] + strokeWidth / 2 + 10 + lastLines * descLineHeight + 14;
+        } else {
+          vbHeight = topPad + bottomPad + (rows - 1) * rowHeight;
+        }
+
         var vbWidth = containerWidth;
-        var vbHeight = topPad + bottomPad + (rows - 1) * rowHeight;
         svg.setAttribute('viewBox', '0 0 ' + vbWidth + ' ' + vbHeight);
         svg.setAttribute('preserveAspectRatio', 'none');
 
@@ -328,7 +355,7 @@
 
         for (var r = 0; r < rows; r++) {
           var segsThisRow = Math.min(segsPerRow, TOTAL - segIndex);
-          var y = topPad + r * rowHeight;
+          var y = flatSingleCol ? rowYs[r] : (topPad + r * rowHeight);
           var leftToRight = (r % 2 === 0);
           var rowStartIndex = segIndex;
 
@@ -383,7 +410,6 @@
             // In the flat no-curve single-column layout, every step should
             // be the same width/justification, so step 1 skips its usual
             // left extension there.
-            var flatSingleCol = (segsPerRow === 1 && !showCurves);
             var boxX1 = (n === 1 && !flatSingleCol) ? x1 - 60 : x1;
             var startX = leftToRight ? boxX1 : x2;
             var endX = leftToRight ? x2 : boxX1;

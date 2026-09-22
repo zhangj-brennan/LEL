@@ -188,6 +188,25 @@
         return el;
       }
 
+      function wrapLineCount(text, fontSize, maxWidth, avgCharWidthFactor) {
+        var avgCharWidth = fontSize * avgCharWidthFactor;
+        var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
+        var words = text.split(' ');
+        var lines = 0;
+        var current = '';
+        words.forEach(function (w) {
+          var test = current ? current + ' ' + w : w;
+          if (test.length > maxChars && current) {
+            lines++;
+            current = w;
+          } else {
+            current = test;
+          }
+        });
+        if (current) lines++;
+        return lines;
+      }
+
       function stepDesc(leftX, centerY, strokeWidth, segW, text, overhang, lineHeightMult, rightExtra, leftExtra, shiftRight, shiftUp) {
         var pad = 10;
         var fontSize = 12;
@@ -260,6 +279,13 @@
           showCurves = true;
         }
 
+        // The CSS side margin exists to keep the diagram off the viewport
+        // edges at the curved breakpoints, but in the flat no-curve mobile
+        // layout the boxes need to end flush with the heading's own right
+        // edge, so drop it there (clientWidth itself doesn't depend on
+        // margin, so this doesn't disturb containerWidth above).
+        svg.style.margin = (segsPerRow === 1 && !showCurves) ? '0' : '';
+
         var MARGIN = showCurves ? CURVE_MARGIN : PLAIN_MARGIN;
         var rows = Math.ceil(TOTAL / segsPerRow);
         var rowWidth = Math.max(containerWidth - 2 * MARGIN, 1);
@@ -271,7 +297,7 @@
         // matches whatever the breakpoints above just decided.
         var rowHeight = ROW_HEIGHT;
         if (segsPerRow === 1 && !showCurves && containerWidth >= 400) {
-          rowHeight = 120;
+          rowHeight = 110;
         } else if (segsPerRow === 1 && showCurves) {
           rowHeight = 190;
         }

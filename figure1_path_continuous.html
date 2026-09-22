@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funding Lifecycle</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="container">
+    <div class="figure-label">Figure 1</div>
+    <div id="title">
+      <h1 class="wrap-title">Federal Funding and DOJ Grantmaking Lifecycle</h1>
+    </div>
+    <p class="deck">Typical competitive DOJ grant path from appropriations to closeout.</p>
+
+    <svg class="pathc-spine" aria-hidden="true"></svg>
+  </div>
+
+  <script>
+    (function () {
+      var TOTAL = 12;          // always 12 straight segments, however they're arranged into rows
+      var ROW_HEIGHT = 260;    // vertical space allotted per row
+      var MAX_STROKE = 100;    // matches the cap in the strokeWidth formula below
+      var THIN_STROKE = 54;    // shorter box height used in the single-column (no-curve) layout
+      // The connectors' semicircle radius is ROW_HEIGHT / 2 (90), and its
+      // *centerline* bulges that far past each row's own edge. But the
+      // visible stroke extends another MAX_STROKE / 2 beyond the centerline
+      // at the curve's widest point — forgetting that was what let it poke
+      // outside the SVG before. MARGIN has to cover both.
+      var CURVE_MARGIN = ROW_HEIGHT / 2 + MAX_STROKE / 2 + 5; // left/right inset when curves are shown
+      var PLAIN_MARGIN = 20;   // left/right inset when there are no curves to make room for
+      var GAP = 2;             // gap between segments in the same row
+      var STAGE_GAP = 8;       // thicker gap right before a new phase's first segment
+      // Relative width weights per step (1 = default share of its row).
+      // Step 6 gives up width, step 4 gains it; a pair sharing a row keeps
+      // that row's total width unchanged since the weights still sum the
+      // same as an all-1 row would.
+      var WIDTH_WEIGHTS = [1, 1, 1, 1.2, 1, 0.8, 0.94, 1.36, 0.7, 1, 1, 1];
+
+      var PHASES = [
+        'Appropriation', 'Apportionment', 'Allotment', 'Allotment', 'Allotment',
+        'Allotment', 'Allotment', 'Allotment', 'Obligation', 'Obligation',
+        'Disbursement', 'Disbursement'
+      ];
+
+      // Each phase 10% lighter than the last, darkest (full black) at
+      // Disbursement and working back to Appropriation.
+      var PHASE_COLORS = {
+        'Disbursement': '#000000',
+        'Obligation': '#1a1a1a',
+        'Allotment': '#333333',
+        'Apportionment': '#4d4d4d',
+        'Appropriation': '#666666'
+      };
+
+      var TITLES = [
+        'Congress Appropriates Funds',
+        'OMB Apportions Funds to DOJ',
+        'DOJ Allots Apportioned Funds',
+        'DOJ Develops Grant Funding Opportunities',
+        'DOJ Publishes NOFOs',
+        'Applicants Complete Required Registrations',
+        'Applicants Submit the Two-Part DOJ Application',
+        'DOJ Reviews Applications',
+        'DOJ Makes Award Decisions and Obligates Funds',
+        'Recipient Accepts the Award and Completes Award Setup',
+        'Recipient Implements the Project, Draws Funds, and Reports',
+        'Recipient Completes Closeout Requirements'
+      ];
+
+      var DESCRIPTIONS = [
+        'Congress provides budget authority for authorized grant programs through appropriations laws, which may set funding levels, purposes, and requirements.',
+        'OMB apportions DOJ’s budgetary resources, limiting how much may be obligated by time period, activity, project, or other category.',
+        'DOJ allots apportioned funds among grant programs and offices, establishing available funding and delegating authority to incur obligations.',
+        'DOJ grantmaking components use available funding, statutory requirements, appropriations directives, and agency priorities to develop grant funding opportunities.*',
+        'DOJ publishes NOFOs describing program purpose, eligibility, application requirements, evaluation criteria, deadlines, and award information.',
+        'Applicants maintain an active SAM.gov entity registration, UEI¹, and required system access before applying.',
+        'Applicants first submit SF-424 and other required forms in Grants.gov, then complete the full application in JustGrants².',
+        'DOJ reviews applications for basic requirements and completeness. Programmatic and financial reviews follow, and competitive discretionary applications also undergo peer review.³',
+        'DOJ selects recipients, issues awards, and records obligations of federal funds.',
+        'The recipient reviews the award and conditions, accepts or declines it in JustGrants, and completes any required ASAP enrollment or payment-account setup.',
+        'The recipient carries out approved activities, requests payments through ASAP, tracks spending and performance, and submits required reports.',
+        'After the award ends, the recipient submits final financial, performance, and other required reports, meets award conditions, and resolves closeout requirements. DOJ reviews and closes the award.'
+      ];
+
+      var svg = document.querySelector('.pathc-spine');
+      var NS = 'http://www.w3.org/2000/svg';
+
+      function line(x1, y1, x2, y2, strokeWidth, color) {
+        var el = document.createElementNS(NS, 'path');
+        el.setAttribute('d', 'M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2);
+        el.setAttribute('fill', 'none');
+        el.setAttribute('stroke', color || 'black');
+        el.setAttribute('stroke-width', strokeWidth);
+        el.setAttribute('stroke-linecap', 'butt');
+        return el;
+      }
+
+      function semicircle(x, y1, y2, sweep, strokeWidth, color) {
+        var radius = Math.abs(y2 - y1) / 2;
+        var el = document.createElementNS(NS, 'path');
+        el.setAttribute('d', 'M' + x + ',' + y1 + ' A' + radius + ',' + radius + ' 0 0,' + sweep + ' ' + x + ',' + y2);
+        el.setAttribute('fill', 'none');
+        el.setAttribute('stroke', color || 'black');
+        el.setAttribute('stroke-width', strokeWidth);
+        el.setAttribute('stroke-linecap', 'butt');
+        return el;
+      }
+
+      function dividerLine(x, centerY, strokeWidth) {
+        var el = document.createElementNS(NS, 'path');
+        el.setAttribute('d', 'M' + x + ',' + (centerY - strokeWidth / 2) + ' L' + x + ',' + (centerY + strokeWidth / 2));
+        el.setAttribute('fill', 'none');
+        el.setAttribute('stroke', 'white');
+        el.setAttribute('stroke-width', 4);
+        return el;
+      }
+
+      function phaseLabel(leftX, rightX, centerY, strokeWidth, text, alignRight) {
+        var el = document.createElementNS(NS, 'text');
+        el.setAttribute('x', alignRight ? rightX : leftX);
+        el.setAttribute('y', centerY - strokeWidth / 2 - 4);
+        el.setAttribute('fill', 'black');
+        el.setAttribute('text-anchor', alignRight ? 'end' : 'start');
+        el.setAttribute('font-family', 'BentonStrong, sans-serif');
+        el.setAttribute('font-size', 11);
+        el.setAttribute('letter-spacing', '0.4');
+        el.textContent = text.toUpperCase();
+        return el;
+      }
+
+      function label(leftX, centerY, strokeWidth, n) {
+        var pad = 10;
+        var el = document.createElementNS(NS, 'text');
+        el.setAttribute('x', leftX + pad);
+        el.setAttribute('y', centerY - strokeWidth / 2 + pad);
+        el.setAttribute('fill', 'white');
+        el.setAttribute('text-anchor', 'start');
+        el.setAttribute('dominant-baseline', 'hanging');
+        el.setAttribute('font-family', 'BentonStrong, sans-serif');
+        el.setAttribute('font-size', 20);
+        el.textContent = n;
+        return el;
+      }
+
+      function stepTitle(leftX, centerY, strokeWidth, segW, text, rightExtra, leftExtra) {
+        var pad = 10;
+        var fontSize = 12;
+        rightExtra = rightExtra || 0;
+        leftExtra = leftExtra || 0;
+        var textLeft = leftX - leftExtra;
+        var maxWidth = Math.max(40, segW + rightExtra + leftExtra - pad * 2);
+        var avgCharWidth = fontSize * 0.55;
+        var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
+
+        var words = text.split(' ');
+        var lines = [];
+        var current = '';
+        words.forEach(function (w) {
+          var test = current ? current + ' ' + w : w;
+          if (test.length > maxChars && current) {
+            lines.push(current);
+            current = w;
+          } else {
+            current = test;
+          }
+        });
+        if (current) lines.push(current);
+
+        var el = document.createElementNS(NS, 'text');
+        el.setAttribute('x', textLeft + pad);
+        el.setAttribute('fill', 'white');
+        el.setAttribute('text-anchor', 'start');
+        el.setAttribute('font-family', 'Benton, sans-serif');
+        el.setAttribute('font-size', fontSize);
+
+        var numberSpace = 20 * 1.3;
+        var startY = centerY - strokeWidth / 2 + pad + numberSpace + fontSize - 7;
+        var lineHeight = fontSize * 1.3;
+        lines.forEach(function (lineText, i) {
+          var tspan = document.createElementNS(NS, 'tspan');
+          tspan.setAttribute('x', textLeft + pad);
+          tspan.setAttribute('y', startY + i * lineHeight);
+          tspan.textContent = lineText;
+          el.appendChild(tspan);
+        });
+        return el;
+      }
+
+      function stepDesc(leftX, centerY, strokeWidth, segW, text, overhang, lineHeightMult, rightExtra, leftExtra, shiftRight, shiftUp) {
+        var pad = 10;
+        var fontSize = 12;
+        overhang = overhang || 0;
+        lineHeightMult = lineHeightMult || 1.25;
+        rightExtra = rightExtra || 0;
+        leftExtra = leftExtra || 0;
+        shiftRight = shiftRight || 0;
+        shiftUp = shiftUp || 0;
+        var textLeft = leftX - overhang - 6 - leftExtra + shiftRight;
+        var maxWidth = Math.max(40, segW + overhang * 2 + rightExtra + leftExtra - pad * 2);
+        var avgCharWidth = fontSize * 0.5;
+        var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
+
+        var words = text.split(' ');
+        var lines = [];
+        var current = '';
+        words.forEach(function (w) {
+          var test = current ? current + ' ' + w : w;
+          if (test.length > maxChars && current) {
+            lines.push(current);
+            current = w;
+          } else {
+            current = test;
+          }
+        });
+        if (current) lines.push(current);
+
+        var el = document.createElementNS(NS, 'text');
+        el.setAttribute('x', textLeft + pad);
+        el.setAttribute('fill', 'black');
+        el.setAttribute('text-anchor', 'start');
+        el.setAttribute('font-family', 'Benton, sans-serif');
+        el.setAttribute('font-size', fontSize);
+
+        var startY = centerY + strokeWidth / 2 + pad + fontSize - 6 - shiftUp;
+        var lineHeight = fontSize * lineHeightMult;
+        lines.forEach(function (lineText, i) {
+          var tspan = document.createElementNS(NS, 'tspan');
+          tspan.setAttribute('x', textLeft + pad);
+          tspan.setAttribute('y', startY + i * lineHeight);
+          tspan.textContent = lineText;
+          el.appendChild(tspan);
+        });
+        return el;
+      }
+
+      function build() {
+        var containerWidth = svg.clientWidth;
+        if (!containerWidth) return;
+
+        // Explicit breakpoints: 3 per row above 800px, 2 per row from
+        // roughly 710px window width down to ~530px, 1 per row (no curves)
+        // below that. containerWidth here is svg.clientWidth, which runs
+        // about 32px narrower than the actual window width (body's 16px
+        // left/right padding) — the 710 threshold below is adjusted for
+        // that so the switch lands at a 710px window width.
+        var segsPerRow, showCurves;
+        if (containerWidth < 500) {
+          segsPerRow = 1;
+          showCurves = false;
+        } else if (containerWidth < 710 - 32) {
+          segsPerRow = 1;
+          showCurves = true;
+        } else if (containerWidth < 800) {
+          segsPerRow = 2;
+          showCurves = true;
+        } else {
+          segsPerRow = 3;
+          showCurves = true;
+        }
+
+        var MARGIN = showCurves ? CURVE_MARGIN : PLAIN_MARGIN;
+        var rows = Math.ceil(TOTAL / segsPerRow);
+        var rowWidth = Math.max(containerWidth - 2 * MARGIN, 1);
+        var strokeWidth = showCurves ? MAX_STROKE : THIN_STROKE;
+        // Much less vertical white space between rows in the narrow
+        // single-column no-curve range than the default ROW_HEIGHT, and
+        // somewhat condensed in the single-column curved range too. Keyed
+        // off segsPerRow/showCurves (not a raw width check) so this always
+        // matches whatever the breakpoints above just decided.
+        var rowHeight = ROW_HEIGHT;
+        if (segsPerRow === 1 && !showCurves && containerWidth >= 400) {
+          rowHeight = 150;
+        } else if (segsPerRow === 1 && showCurves) {
+          rowHeight = 190;
+        }
+
+        // Small top padding (just enough to clear the stroke), instead of
+        // the full rowHeight/2 gap that centering each row would leave
+        // above the first segment. The extra +24 makes room for a phase
+        // label above row 0 specifically (later rows already have plenty
+        // of natural gap above them, matching bottomPad below).
+        var topPad = strokeWidth / 2 + 10 + 24;
+        // Bottom padding has to fit the wrapped description text below the
+        // last row's boxes — same amount of room later rows already get
+        // naturally from rowHeight - strokeWidth.
+        var bottomPad = rowHeight - strokeWidth / 2 + 10;
+
+        var vbWidth = containerWidth;
+        var vbHeight = topPad + bottomPad + (rows - 1) * rowHeight;
+        svg.setAttribute('viewBox', '0 0 ' + vbWidth + ' ' + vbHeight);
+        svg.setAttribute('preserveAspectRatio', 'none');
+
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+        var segIndex = 0;
+        var prevEndX = null;
+        var prevEndY = null;
+        var prevLeftToRight = null;
+        var prevPhase = null;
+
+        for (var r = 0; r < rows; r++) {
+          var segsThisRow = Math.min(segsPerRow, TOTAL - segIndex);
+          var y = topPad + r * rowHeight;
+          var leftToRight = (r % 2 === 0);
+          var rowStartIndex = segIndex;
+
+          // Gap sizes between each pair of physically-adjacent segments in
+          // this row. Physically-adjacent segments always have consecutive
+          // n values (path-traversal order), regardless of row direction,
+          // so the higher of the two tells us whether that gap sits right
+          // before a new phase's first segment.
+          var gaps = [];
+          for (var k = 0; k < segsThisRow - 1; k++) {
+            var pOa = leftToRight ? k : (segsThisRow - 1 - k);
+            var pOb = leftToRight ? (k + 1) : (segsThisRow - 1 - (k + 1));
+            var nA = rowStartIndex + pOa + 1;
+            var nB = rowStartIndex + pOb + 1;
+            var higherN = Math.max(nA, nB);
+            var isStageStart = PHASES.indexOf(PHASES[higherN - 1]) === higherN - 1;
+            gaps.push(isStageStart ? STAGE_GAP : GAP);
+          }
+          var totalGap = gaps.reduce(function (a, b) { return a + b; }, 0);
+          var availableWidth = rowWidth - totalGap;
+
+          var weights = [];
+          for (var i = 0; i < segsThisRow; i++) {
+            var pOw = leftToRight ? i : (segsThisRow - 1 - i);
+            var nw = rowStartIndex + pOw + 1;
+            var w = WIDTH_WEIGHTS[nw - 1];
+            // At the 3-per-row breakpoint specifically, give step 9 a
+            // little width back from step 8 (they only share a row here).
+            if (segsPerRow === 3 && nw === 9) w += 0.1;
+            if (segsPerRow === 3 && nw === 8) w -= 0.1;
+            weights.push(w);
+          }
+          var totalWeight = weights.reduce(function (a, b) { return a + b; }, 0);
+          var segWidths = weights.map(function (w) { return availableWidth * w / totalWeight; });
+
+          var xOffsets = [0];
+          for (var k = 0; k < gaps.length; k++) {
+            xOffsets.push(xOffsets[k] + segWidths[k] + gaps[k]);
+          }
+
+          for (var i = 0; i < segsThisRow; i++) {
+            var x1 = MARGIN + xOffsets[i];
+            var segW = segWidths[i];
+            var x2 = x1 + segW;
+            // Number by path-traversal order, not array position: on a
+            // right-to-left row, the rightmost box (i = segsThisRow - 1)
+            // is the first one the path actually reaches.
+            var pathOrder = leftToRight ? i : (segsThisRow - 1 - i);
+            var n = rowStartIndex + pathOrder + 1;
+            // Step 1's box itself (not just its text) extends 20px further
+            // left than its normal slot, matching the text overhang above.
+            // In the flat no-curve single-column layout, every step should
+            // be the same width/justification, so step 1 skips its usual
+            // left extension there.
+            var flatSingleCol = (segsPerRow === 1 && !showCurves);
+            var boxX1 = (n === 1 && !flatSingleCol) ? x1 - 60 : x1;
+            var startX = leftToRight ? boxX1 : x2;
+            var endX = leftToRight ? x2 : boxX1;
+            // First occurrence of a phase is a fixed property of PHASES
+            // itself (not of draw order), so this check works regardless
+            // of row direction.
+            if (PHASES.indexOf(PHASES[n - 1]) === n - 1) {
+              // In the narrow single-column range, push phase labels all the
+              // way to the SVG's own left edge so they line up with the
+              // figure's title/deck instead of sitting inset with the box.
+              var phaseLabelX = (rowHeight === 150) ? 0 : boxX1;
+              svg.appendChild(phaseLabel(phaseLabelX, x2, y, strokeWidth, PHASES[n - 1], n === 11 && segsPerRow !== 1));
+            }
+            svg.appendChild(line(startX, y, endX, y, strokeWidth, PHASE_COLORS[PHASES[n - 1]]));
+            // Step divider: a marker at the curve-landing edge (startX,
+            // which is x1 on an LTR row but x2 on an RTL row — the box's
+            // own outer edge, not necessarily its literal left side).
+            // 3-per-row and 2-per-row mark every curve-landing; so does
+            // the single-column curved layout.
+            if (r > 0 && n === rowStartIndex + 1) {
+              var wantDivider = segsPerRow === 3 || segsPerRow === 2 || (segsPerRow === 1 && showCurves);
+              if (wantDivider) svg.appendChild(dividerLine(startX, y, strokeWidth));
+            }
+            svg.appendChild(label(boxX1, y, strokeWidth, n));
+            // At the 3-per-row breakpoint, steps 3/4's black description
+            // text and step 9's white title text get 20px more room to
+            // wrap into on the right.
+            var titleRightExtra = (segsPerRow === 3 && n === 9) ? 20 : 0;
+            if (n === 11 || n === 10) titleRightExtra += 20;
+            var titleLeftExtra = (n === 1 && !flatSingleCol) ? 60 : 0;
+            svg.appendChild(stepTitle(x1, y, strokeWidth, segW, TITLES[n - 1], titleRightExtra, titleLeftExtra));
+            var descOverhang = (segsPerRow === 1) ? 15 : 0;
+            var descLineHeightMult = (segsPerRow === 1) ? 1.05 : 1.25;
+            var descRightExtra = (segsPerRow === 3 && (n === 3 || n === 4)) ? 20 : (segsPerRow === 1 ? 20 : 0);
+            if (n % 2 === 0) descRightExtra += 60;
+            if (n === 10 || n === 8 || n === 4) descRightExtra += 30;
+            if (n === 8) descRightExtra += 20;
+            var descLeftExtra = (n === 1 && !flatSingleCol) ? 60 : 0;
+            var descShiftRight = (segsPerRow === 1) ? 16 : 0;
+            var descShiftUp = (segsPerRow === 1) ? 2 : 0;
+            svg.appendChild(stepDesc(x1, y, strokeWidth, segW, DESCRIPTIONS[n - 1], descOverhang, descLineHeightMult, descRightExtra, descLeftExtra, descShiftRight, descShiftUp));
+          }
+          segIndex += segsThisRow;
+
+          var rowEndX = leftToRight ? (MARGIN + rowWidth) : MARGIN;
+
+          if (r > 0 && showCurves) {
+            // Connector bridges the previous row's end to this row's start,
+            // both on the same side (since the snake alternates direction
+            // each row), curving away from the content (outward). Colored
+            // to match the phase of the step just before it.
+            var sweep = prevLeftToRight ? 1 : 0;
+            var curveColor = PHASE_COLORS[PHASES[rowStartIndex - 1]];
+            svg.appendChild(semicircle(prevEndX, prevEndY, y, sweep, strokeWidth, curveColor));
+          }
+
+          prevEndX = rowEndX;
+          prevEndY = y;
+          prevLeftToRight = leftToRight;
+        }
+      }
+
+      build();
+      window.addEventListener('resize', build);
+    })();
+  </script>
+</body>
+</html>

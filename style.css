@@ -185,7 +185,7 @@ h1.wrap-title {
   position: absolute;
   top: 0;
   height: clamp(14px, 3vw, 32px);
-  border-top: 2px solid black;
+  border-top: 6px solid black;
 }
 .tree li::before {
   right: 50%;
@@ -195,7 +195,7 @@ h1.wrap-title {
   left: 50%;
   right: auto;
   width: 50%;
-  border-left: 2px solid black;
+  border-left: 6px solid black;
 }
 .tree li:only-child::before,
 .tree li:only-child::after {
@@ -206,10 +206,10 @@ h1.wrap-title {
   border: none;
 }
 .tree li:last-child::before {
-  border-right: 2px solid black;
+  border-right: 6px solid black;
 }
 .tree li:first-child::after {
-  border-left: 2px solid black;
+  border-left: 6px solid black;
 }
 .tree ul ul::before {
   content: "";
@@ -218,7 +218,7 @@ h1.wrap-title {
   left: 50%;
   width: 0;
   height: clamp(14px, 3vw, 32px);
-  border-left: 2px solid black;
+  border-left: 6px solid black;
 }
 
 .node {
@@ -265,20 +265,20 @@ h1.wrap-title {
   padding-top: 4px;
 }
 .node.ojp .node-header strong {
-  color: #007194;
-  border-top-color: #007194;
+  color: black;
+  border-top-color: black;
 }
 .node.cops .node-header strong {
-  color: #3995b2;
-  border-top-color: #3995b2;
+  color: black;
+  border-top-color: black;
 }
 .node.ovw .node-header strong {
-  color: #00415b;
-  border-top-color: #00415b;
+  color: black;
+  border-top-color: black;
 }
-.node.ojp .name { color: #007194; }
-.node.cops .name { color: #3995b2; }
-.node.ovw .name { color: #00415b; }
+.node.ojp .name { color: black; }
+.node.cops .name { color: black; }
+.node.ovw .name { color: black; }
 
 .node.cops .name,
 .node.ojp .name,
@@ -297,13 +297,13 @@ h1.wrap-title {
 }
 .node.ojp {
   max-width: 400px;
-  color: #007194;
+  color: black;
 }
 .node.cops {
-  color: #3995b2;
+  color: black;
 }
 .node.ovw {
-  color: #00415b;
+  color: black;
 }
 .node.cops .node-header,
 .node.ojp .node-header,
@@ -324,7 +324,7 @@ h1.wrap-title {
 .node.ojp .offices > li .office-header {
   display: block;
   background: white;
-  border-top: 3px solid #007194;
+  border-top: 3px solid black;
   padding: 6px 6px 4px;
   line-height: 0.9;
   list-style: none;
@@ -399,7 +399,7 @@ h1.wrap-title {
   font-family: "BentonStrong";
   font-size: 12px;
   line-height: 0.9;
-  color: #007194;
+  color: black;
 }
 
 .node p {
@@ -496,7 +496,7 @@ h1.wrap-title {
     position: absolute;
     left: 2px;
     top: 6px;
-    color: #007194;
+    color: black;
   }
   .node.ojp .offices > li details[open] .office-header::before {
     content: "\25be";
@@ -712,9 +712,8 @@ h1.wrap-title {
   max-width: 700px;
 }
 .op-friction {
-  border-left: 3px solid #007194;
-  padding-left: 8px;
-  font-style: italic;
+  background: #ffcf01;
+  padding: 4px 8px;
 }
 .op-reports {
   margin: 0 0 6px;

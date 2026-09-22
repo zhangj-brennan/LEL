@@ -507,26 +507,40 @@
 
         svg.style.margin = '';
 
+        function maxNeededAt(segW) {
+          var m = 0;
+          for (var mn = 0; mn < SEGMENTS.length; mn++) {
+            var v = requiredHeightForSegment(SEGMENTS[mn].type, SEGMENTS[mn].group, segW);
+            if (v > m) m = v;
+          }
+          return m;
+        }
+
         // Start with as many columns as fit at MIN_SQUARE, then shrink
         // the column count (growing each square) until every segment's
-        // text actually fits inside a square of that size. Stays at at
-        // least 2 columns down to 400px wide, only dropping to a single
-        // column below that.
-        var minColumns = containerWidth >= 400 ? 2 : 1;
-        var columns = Math.max(minColumns, Math.floor((containerWidth + GAP) / (MIN_SQUARE + GAP)));
+        // text actually fits inside a square of that size.
+        var columns = Math.max(1, Math.floor((containerWidth + GAP) / (MIN_SQUARE + GAP)));
         var squareSize;
         while (true) {
           squareSize = Math.floor((containerWidth - (columns - 1) * GAP) / columns);
-          var maxNeeded = 0;
-          for (var mn = 0; mn < SEGMENTS.length; mn++) {
-            var mNeeded = requiredHeightForSegment(SEGMENTS[mn].type, SEGMENTS[mn].group, squareSize);
-            if (mNeeded > maxNeeded) maxNeeded = mNeeded;
-          }
-          if (maxNeeded <= squareSize || columns <= minColumns) {
+          var maxNeeded = maxNeededAt(squareSize);
+          if (maxNeeded <= squareSize || columns <= 1) {
             squareSize = Math.max(squareSize, maxNeeded);
             break;
           }
           columns--;
+        }
+
+        // Prefer at least 2 columns down to 400px wide — but only if 2
+        // columns actually fit without forcing squares wider than their
+        // column slot (which would overflow the row instead of wrapping).
+        if (columns < 2 && containerWidth >= 400) {
+          var trialSize = Math.floor((containerWidth - GAP) / 2);
+          var trialNeeded = maxNeededAt(trialSize);
+          if (trialNeeded <= trialSize) {
+            columns = 2;
+            squareSize = trialSize;
+          }
         }
 
         var cells = buildPath(columns);

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Officer P&rsquo;s Journey</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* No rule between steps; instead the step numbers sit in a left
+     gutter, joined by a line from each number down to the next. */
+  .op-timeline-arrows .op-step {
+    position: relative;
+    border-top: none;
+    padding-left: 36px;
+  }
+  .op-timeline-arrows .op-step-number {
+    position: absolute;
+    left: 0;
+    top: 12px;
+  }
+  .op-timeline-arrows .op-step-header {
+    min-height: 26px;
+  }
+  /* Connector: a thick line running from this number straight into
+     the next one. */
+  .op-timeline-arrows .op-step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 9px;
+    top: 36px;
+    bottom: -14px;
+    width: 8px;
+    background: black;
+  }
+  .op-timeline-arrows .op-duration {
+    color: black;
+  }
+  /* The last step's line runs down from its number and ends at its
+     yellow note's warning diamond; the script below measures where. */
+  .op-timeline-arrows .op-step:last-child::before {
+    content: "";
+    position: absolute;
+    left: 9px;
+    top: 36px;
+    bottom: var(--line-end, 30px);
+    width: 8px;
+    background: black;
+  }
+  /* Yellow warning diamond with a "!" on the path, level with each
+     yellow friction note. The note starts 36px in from the step's left
+     edge; the path's center is 13px in, so the 34px diamond sits at
+     13 - 17 - 36. */
+  .op-timeline-arrows .op-friction {
+    position: relative;
+  }
+  .op-timeline-arrows .op-friction::before {
+    content: "";
+    position: absolute;
+    left: -40px;
+    top: 50%;
+    width: 34px;
+    height: 34px;
+    transform: translateY(-50%);
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Cpath d='M17 2.5 L31.5 17 L17 31.5 L2.5 17 Z' fill='%23ffcf01' stroke='black' stroke-width='3' stroke-linejoin='round'/%3E%3Crect x='15.4' y='9' width='3.2' height='11' rx='1.2' fill='black'/%3E%3Ccircle cx='17' cy='24' r='2' fill='black'/%3E%3C/svg%3E") no-repeat center / contain;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+  <div id="container">
+    <div class="figure-label">Figure 3</div>
+    <div id="title">
+      <h1>Officer P&rsquo;s Journey</h1>
+    </div>
+    <p class="deck">This hypothetical scenario draws on real-world experiences shared by law enforcement leaders, along with information from resources and experts on DOJ funding.</p>
+
+    <div class="op-intro-row">
+      <div class="op-intro">
+        <h2>Meet Officer P</h2>
+        <p>Officer P is a veteran police officer in a small rural town who sees the same challenges every day: overdoses, behavioral health crises, and homelessness. He knows that jail, the main tool he has at hand, will not help steer people toward sobriety or stable lives.</p>
+        <p>Through research, he learns about co-responder models, which pair officers with mental health professionals on behavioral health calls. The approach has shown promising results elsewhere, and he hopes it could help his community.</p>
+        <p>Officer P gets buy-in from his police chief, the mayor&rsquo;s office, the local clinic, and the community. Some remain skeptical, but they agree that the status quo is not working. The city council approves the pilot program contingent on receiving external funding, such as a grant.</p>
+        <p>Since the city and state do not have room in their budgets to fund the program, Officer P speaks with his district&rsquo;s representative in Congress about possible options. His representative points him to JMHCP&sup1; and other DOJ grant programs that may support initiatives like his.</p>
+      </div>
+
+      <div class="op-appropriations">
+        <h2>Appropriations Process</h2>
+        <p>Before Officer P begins searching for grants, the annual appropriations process determines how much funding is available for DOJ grant programs. This process can affect when grant opportunities are announced and whether awards can be made.</p>
+        <ol class="op-approp-list">
+          <li>Agencies submit budget requests to OMB</li>
+          <li>President submits budget request to Congress</li>
+          <li>Congress holds hearings and passes appropriations, which the President signs into law</li>
+          <li>OMB apportions funds to agencies</li>
+          <li>Agencies release NOFOs based on available or anticipated funding</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="op-timeline op-timeline-arrows">
+      <div class="op-step">
+        <div class="op-step-header">
+          <div class="op-step-number">1</div>
+          <div>
+            <h3>Learn About the Funding Process</h3>
+            <span class="op-duration">1&ndash;3 months+</span>
+          </div>
+        </div>
+        <p>Officer P searches DOJ websites to learn when funding will open and where application information will be posted. He calls colleagues in other cities for guidance, but it takes weeks to find the information he needs.</p>
+        <p class="op-friction">DOJ has not published a public program plan since 2024, making it harder to research upcoming opportunities.</p>
+      </div>
+
+      <div class="op-step">
+        <div class="op-step-header">
+          <div class="op-step-number">2</div>
+          <div>
+            <h3>Read the NOFOs&sup2;</h3>
+            <span class="op-duration">1&ndash;3 weeks+</span>
+          </div>
+        </div>
+        <p>He reviews the NOFOs, works through eligibility rules, deadlines, required documents, and unfamiliar terms, and tries to determine whether his project fits.</p>
+        <p class="op-friction">The process is more complicated than he expected, and he begins questioning whether he has the capacity to do this on his own.</p>
+      </div>
+
+      <div class="op-step">
+        <div class="op-step-header">
+          <div class="op-step-number">3</div>
+          <div>
+            <h3>Set Up SAM.gov and Get a UEI&sup3;</h3>
+            <span class="op-duration">2&ndash;6 weeks</span>
+          </div>
+        </div>
+        <p>Before he can apply, he has to create a SAM.gov account and register his agency to receive the required UEI.</p>
+        <p class="op-friction">He runs into account issues and has to contact technical support. It takes a week before someone gets back to him.</p>
+      </div>
+
+      <div class="op-step">
+        <div class="op-step-header">
+          <div class="op-step-number">4</div>
+          <div>
+            <h3>Complete the SF-424</h3>
+            <span class="op-duration">1&ndash;2 weeks</span>
+          </div>
+        </div>
+        <p>He completes the SF-424, the standard federal application form, along with any other required forms, and submits them through Grants.gov.</p>
+        <p class="op-friction">One field is completed incorrectly, so the application must be resubmitted.</p>
+      </div>
+
+      <div class="op-step">
+        <div class="op-step-header">
+          <div class="op-step-number">5</div>
+          <div>
+            <h3>Complete the JustGrants Application</h3>
+            <span class="op-duration">2&ndash;8 weeks+</span>
+          </div>
+        </div>
+        <p>He uploads required documents, enters budget information, and completes the remaining application requirements in JustGrants.</p>
+        <p class="op-friction">The portal freezes and some of his work is lost, so he has to redo it after his shift.</p>
+      </div>
+
+      <div class="op-step">
+        <div class="op-step-header">
+          <div class="op-step-number">6</div>
+          <div>
+            <h3>Wait for Award Decision</h3>
+            <span class="op-duration">Varies, often months</span>
+          </div>
+        </div>
+        <p>The application is submitted, but the city cannot move forward with hiring, contracts, or implementation until a decision is made and funding has been awarded.</p>
+        <p class="op-friction">Weeks pass, and he cannot get in touch with anyone for an update or a timeline.</p>
+      </div>
+
+      <div class="op-step">
+        <div class="op-step-header">
+          <div class="op-step-number">7</div>
+          <div>
+            <h3>Receive the Award</h3>
+            <span class="op-duration">Varies</span>
+          </div>
+        </div>
+        <p>The application is selected for funding! He accepts the award, completes the required setup, and prepares to begin implementation.</p>
+        <p class="op-friction">The delayed award leaves less time to hire staff, launch the program, and show results.</p>
+      </div>
+
+      <div class="op-step">
+        <div class="op-step-header">
+          <div class="op-step-number">8</div>
+          <div>
+            <h3>Implement &amp; Manage the Grant &amp; Program</h3>
+          </div>
+        </div>
+        <p>He hires or contracts program staff, begins implementing the program, and starts collecting data.</p>
+        <ul class="op-reports">
+          <li>Quarterly Financial Reports</li>
+          <li>Semi-Annual Performance Reports</li>
+          <li>Final Financial &amp; Performance Reports</li>
+        </ul>
+        <p class="op-friction">Who will manage the implementation, coordination, data collection, and reporting? He still has to work his full-time job!</p>
+      </div>
+
+      <div class="op-step">
+        <div class="op-step-header">
+          <div class="op-step-number">9</div>
+          <div>
+            <h3>Sustain the Program</h3>
+            <span class="op-duration">2&ndash;3 years &amp; beyond</span>
+          </div>
+        </div>
+        <p>The program is making a big difference in his community and is strongly supported by residents. Officer P now has to plan how to keep it going. If another grant cycle is offered, he repeats the application process. If not, he has to search for another funding source.</p>
+        <p class="op-friction">He does not know whether future appropriations will fund another grant cycle, so he encourages community members to ask their members of Congress to support continued funding.</p>
+      </div>
+    </div>
+
+    <div class="op-challenges-row">
+      <div class="op-challenges">
+        <h2>Other Challenges</h2>
+        <ul>
+          <li>Officer P completes much of this work during personal time off the clock and between his regular job responsibilities. His department assigns an admin to help him part time, but much of the workload still falls on him because the grant does not cover dedicated grant management staff.</li>
+          <li>He sees funding being terminated mid-grant for programs like his and worries that his program could lose funding after it begins. State and local agencies do not have replacement funds, and his department lacks the bandwidth to pursue private grants or donations.</li>
+          <li>Because the grant lasts only 3 years, Officer P must seek continued funding while still launching and managing the program. He may not yet have enough data to demonstrate results, and reapplying takes time away from implementation.</li>
+        </ul>
+      </div>
+
+      <div class="op-changes">
+        <h2>Changes That Could Help Applicants Like Officer P</h2>
+        <ul>
+          <li>Publish a public annual DOJ program plan before each fiscal year begins</li>
+          <li>Post NOFOs on a predictable timeline</li>
+          <li>Standardize applications across DOJ grantmaking offices</li>
+          <li>Keep application windows open at least 90 days</li>
+          <li>Provide funding for grant administration staff support</li>
+          <li>Create five-year award periods for selected projects</li>
+          <li>Limit midstream grant cancellations after awards are approved</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footnote">
+      <p>&sup1; JMHCP: The U.S. Department of Justice&rsquo;s Justice and Mental Health Collaboration Program, which supports partnerships between criminal justice and mental health agencies.</p>
+      <p>&sup2; NOFO (Notice of Funding Opportunity): The official announcement that describes a federal grant program, including eligibility, application requirements, deadlines, and available funding.</p>
+      <p>&sup3; UEI (Unique Entity Identifier): A 12-character alphanumeric code assigned by SAM.gov to uniquely identify an entity in federal award systems.</p>
+      <p>*Timelines are illustrative estimates. Actual timing varies by program and year, and some steps may occur at the same time.</p>
+    </div>
+  </div>
+  <script>
+    // Stop the last step's line at the center of its yellow note, where
+    // the warning diamond sits, however many lines the note wraps to.
+    (function () {
+      var step = document.querySelector('.op-timeline-arrows .op-step:last-child');
+      var note = step && step.querySelector('.op-friction');
+      if (!note) return;
+      function place() {
+        var s = step.getBoundingClientRect();
+        var n = note.getBoundingClientRect();
+        step.style.setProperty('--line-end', (s.bottom - (n.top + n.height / 2)) + 'px');
+      }
+      place();
+      window.addEventListener('resize', place);
+      if (document.fonts) document.fonts.ready.then(place);
+    })();
+  </script>
+</body>
+</html>

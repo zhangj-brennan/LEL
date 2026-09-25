@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Officer P&rsquo;s Journey</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="container">
+    <div class="op-intro-row">
+      <div class="op-intro">
+        <h2>Meet Officer P</h2>
+        <p>Officer P is a veteran police officer in a small rural town who sees the same challenges every day: overdoses, behavioral health crises, and homelessness. He knows that jail, the main tool he has at hand, will not help steer people toward sobriety or stable lives.</p>
+        <p>Through research, he learns about co-responder models, which pair officers with mental health professionals on behavioral health calls. The approach has shown promising results elsewhere, and he hopes it could help his community.</p>
+        <p>Officer P gets buy-in from his police chief, the mayor&rsquo;s office, the local clinic, and the community. Some remain skeptical, but they agree that the status quo is not working. The city council approves the pilot program contingent on receiving external funding, such as a grant.</p>
+        <p>Since the city and state do not have room in their budgets to fund the program, Officer P speaks with his district&rsquo;s representative in Congress about possible options. His representative points him to JMHCP&sup1; and other DOJ grant programs that may support initiatives like his.</p>
+      </div>
+    </div>
+
+    <div class="figure-label">Figure 3</div>
+    <div id="title">
+      <h1>Officer P&rsquo;s Journey</h1>
+    </div>
+    <p class="deck">This hypothetical scenario draws on real-world experiences shared by law enforcement leaders, along with information from resources and experts on DOJ funding.</p>
+
+    <div class="op-appropriations">
+      <h2>Appropriations Process</h2>
+      <p>Before Officer P begins searching for grants, the annual appropriations process determines how much funding is available for DOJ grant programs. This process can affect when grant opportunities are announced and whether awards can be made.</p>
+      <ol class="op-approp-list">
+        <li>Agencies submit budget requests to OMB</li>
+        <li>President submits budget request to Congress</li>
+        <li>Congress holds hearings and passes appropriations, which the President signs into law</li>
+        <li>OMB apportions funds to agencies</li>
+        <li>Agencies release NOFOs based on available or anticipated funding</li>
+      </ol>
+    </div>
+
+    <svg class="pathc-spine" aria-hidden="true"></svg>
+
+    <div class="op-challenges-row">
+      <div class="op-challenges">
+        <h2>Other Challenges</h2>
+        <ul>
+          <li>Officer P completes much of this work during personal time off the clock and between his regular job responsibilities. His department assigns an admin to help him part time, but much of the workload still falls on him because the grant does not cover dedicated grant management staff.</li>
+          <li>He sees funding being terminated mid-grant for programs like his and worries that his program could lose funding after it begins. State and local agencies do not have replacement funds, and his department lacks the bandwidth to pursue private grants or donations.</li>
+          <li>Because the grant lasts only 3 years, Officer P must seek continued funding while still launching and managing the program. He may not yet have enough data to demonstrate results, and reapplying takes time away from implementation.</li>
+        </ul>
+      </div>
+
+      <div class="op-changes">
+        <h2>Changes That Could Help Applicants Like Officer P</h2>
+        <ul>
+          <li>Publish a public annual DOJ program plan before each fiscal year begins</li>
+          <li>Post NOFOs on a predictable timeline</li>
+          <li>Standardize applications across DOJ grantmaking offices</li>
+          <li>Keep application windows open at least 90 days</li>
+          <li>Provide funding for grant administration staff support</li>
+          <li>Create five-year award periods for selected projects</li>
+          <li>Limit midstream grant cancellations after awards are approved</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footnote">
+      <p>&sup1; JMHCP: The U.S. Department of Justice&rsquo;s Justice and Mental Health Collaboration Program, which supports partnerships between criminal justice and mental health agencies.</p>
+      <p>&sup2; NOFO (Notice of Funding Opportunity): The official announcement that describes a federal grant program, including eligibility, application requirements, deadlines, and available funding.</p>
+      <p>&sup3; UEI (Unique Entity Identifier): A 12-character alphanumeric code assigned by SAM.gov to uniquely identify an entity in federal award systems.</p>
+      <p>*Timelines are illustrative estimates. Actual timing varies by program and year, and some steps may occur at the same time.</p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var MIN_COLUMN = 220;    // narrowest a column (line + text) can be before dropping a column
+      var GAP = 2;             // gap between steps along the line
+      var COL_GAP = 40;        // space between one column's text and the next column's line
+      var DARK_GREY = '#4d4d4d'; // background for the black description squares (title squares stay black)
+      var NUMBER_FONT_SIZE = 28; // step number badge, e.g. "1"
+      var TITLE_FONT_SIZE = 16;  // step title text, e.g. "Learn About the Funding Process"
+      var BODY_FONT_SIZE = 12;   // minimum size for description/friction/list body text
+      var DURATION_FONT_SIZE = 12; // minimum size for the time-marker labels
+      var LINE_WIDTH = 10;       // stroke width of the path line and its curves
+      var WARNING_SIZE = 30;      // height/width of the caution diamond on yellow segments
+      var TEXT_COLOR = 'black';  // text now sits on the page background, under the line
+
+      var TITLES = [
+        'Appropriations Process',
+        'Learn About the Funding Process',
+        'Read the NOFOs',
+        'Set Up SAM.gov and Get a UEI',
+        'Complete the SF-424',
+        'Complete the JustGrants Application',
+        'Wait for Award Decision',
+        'Receive the Award',
+        'Implement & Manage the Grant & Program',
+        'Sustain the Program'
+      ];
+
+      // Time markers now render as white text in the black box itself
+      // (see DURATIONS below), so this is just description + friction.
+      var BLACK_TEXT = [
+        'Before Officer P begins searching for grants, the annual appropriations process determines how much funding is available for DOJ grant programs. This process can affect when grant opportunities are announced and whether awards can be made.',
+        'Officer P searches DOJ websites to learn when funding will open and where application information will be posted. He calls colleagues in other cities for guidance, but it takes weeks to find the information he needs.',
+        'He reviews the NOFOs, works through eligibility rules, deadlines, required documents, and unfamiliar terms, and tries to determine whether his project fits.',
+        'Before he can apply, he has to create a SAM.gov account and register his agency to receive the required UEI.',
+        'He completes the SF-424, the standard federal application form, along with any other required forms, and submits them through Grants.gov.',
+        'He uploads required documents, enters budget information, and completes the remaining application requirements in JustGrants.',
+        'The application is submitted, but the city cannot move forward with hiring, contracts, or implementation until a decision is made and funding has been awarded.',
+        'The application is selected for funding! He accepts the award, completes the required setup, and prepares to begin implementation.',
+        'He hires or contracts program staff, begins implementing the program, and starts collecting data.',
+        'The program is making a big difference in his community and is strongly supported by residents. Officer P now has to plan how to keep it going. If another grant cycle is offered, he repeats the application process. If not, he has to search for another funding source.'
+      ];
+
+      // Blank string where the original step had no duration (step 8).
+      var DURATIONS = [
+        '',
+        '1–3 months+',
+        '1–3 weeks+',
+        '2–6 weeks',
+        '1–2 weeks',
+        '2–8 weeks+',
+        'Varies, often months',
+        'Varies',
+        '',
+        '2–3 years & beyond'
+      ];
+
+      // The 5-step appropriations list, shown as an actual list (not a
+      // flowing paragraph) in the grey square right after the combined
+      // Appropriations Process title+paragraph square.
+      var APPROP_LIST = [
+        'Agencies submit budget requests to OMB',
+        'President submits budget request to Congress',
+        'Congress holds hearings and passes appropriations, which the President signs into law',
+        'OMB apportions funds to agencies',
+        'Agencies release NOFOs based on available or anticipated funding'
+      ];
+
+      // The friction/challenge note for each step, shown on its own
+      // yellow segment right after that step's black box. Index 0 is
+      // unused (group 0 uses APPROP_LIST instead), kept only so indices
+      // line up with TITLES/BLACK_TEXT/DURATIONS.
+      var FRICTIONS = [
+        '',
+        'DOJ has not published a public program plan since 2024, making it harder to research upcoming opportunities.',
+        'The process is more complicated than he expected, and he begins questioning whether he has the capacity to do this on his own.',
+        'He runs into account issues and has to contact technical support. It takes a week before someone gets back to him.',
+        'One field is completed incorrectly, so the application must be resubmitted.',
+        'The portal freezes and some of his work is lost, so he has to redo it after his shift.',
+        'Weeks pass, and he cannot get in touch with anyone for an update or a timeline.',
+        'The delayed award leaves less time to hire staff, launch the program, and show results.',
+        'Who will manage the implementation, coordination, data collection, and reporting? He still has to work his full-time job!',
+        'He does not know whether future appropriations will fund another grant cycle, so he encourages community members to ask their members of Congress to support continued funding.'
+      ];
+
+      // Explicit list of segments in path order. The Appropriations
+      // Process (group 0) is an HTML list above the graphic, so the path
+      // starts at step 1. Groups 1-9 are each a number/title segment and
+      // a description segment, followed by their friction segment.
+      var SEGMENTS = [];
+      for (var g = 1; g <= 9; g++) {
+        SEGMENTS.push({ type: 'title', group: g });
+        SEGMENTS.push({ type: 'desc', group: g });
+        SEGMENTS.push({ type: 'friction', group: g });
+      }
+      var TOTAL = SEGMENTS.length;
+
+      var svg = document.querySelector('.pathc-spine');
+      var NS = 'http://www.w3.org/2000/svg';
+
+      function square(x, y, size, color) {
+        var el = document.createElementNS(NS, 'rect');
+        el.setAttribute('x', x);
+        el.setAttribute('y', y);
+        el.setAttribute('width', size);
+        el.setAttribute('height', size);
+        el.setAttribute('fill', color || 'black');
+        return el;
+      }
+
+      // Semicircular connector between the end of one row and the start
+      // of the next, at a single x (both endpoints share that x), bulging
+      // out to whichever side `sweep` picks. Stroked at `strokeWidth` so
+      // it reads as a continuation of the square it's touching.
+      function semicircle(x, y1, y2, sweep, strokeWidth, color) {
+        var radius = Math.abs(y2 - y1) / 2;
+        var el = document.createElementNS(NS, 'path');
+        el.setAttribute('d', 'M' + x + ',' + y1 + ' A' + radius + ',' + radius + ' 0 0,' + sweep + ' ' + x + ',' + y2);
+        el.setAttribute('fill', 'none');
+        el.setAttribute('stroke', color || 'black');
+        el.setAttribute('stroke-width', strokeWidth);
+        el.setAttribute('stroke-linecap', 'butt');
+        return el;
+      }
+
+      function label(leftX, centerY, strokeWidth, n) {
+        var pad = 10;
+        var el = document.createElementNS(NS, 'text');
+        el.setAttribute('x', leftX + pad);
+        el.setAttribute('y', centerY - strokeWidth / 2 + pad);
+        el.setAttribute('fill', TEXT_COLOR);
+        el.setAttribute('text-anchor', 'start');
+        el.setAttribute('dominant-baseline', 'hanging');
+        el.setAttribute('font-family', 'BentonStrong, sans-serif');
+        el.setAttribute('font-size', NUMBER_FONT_SIZE);
+        el.textContent = n;
+        return el;
+      }
+
+      // Number/title square used for steps 1-9 — the number badge (drawn
+      // separately by label()) plus the title and duration, no
+      // description text (that lives in its own square via textBox()).
+      function stepTitle(leftX, centerY, strokeWidth, segW, text, duration) {
+        var pad = 10;
+        var fontSize = TITLE_FONT_SIZE;
+        var maxWidth = Math.max(40, segW - pad * 2);
+        var avgCharWidth = fontSize * 0.55;
+        var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
+
+        var words = text.split(' ');
+        var lines = [];
+        var current = '';
+        words.forEach(function (w) {
+          var test = current ? current + ' ' + w : w;
+          if (test.length > maxChars && current) {
+            lines.push(current);
+            current = w;
+          } else {
+            current = test;
+          }
+        });
+        if (current) lines.push(current);
+
+        var el = document.createElementNS(NS, 'text');
+        el.setAttribute('x', leftX + pad);
+        el.setAttribute('fill', TEXT_COLOR);
+        el.setAttribute('text-anchor', 'start');
+        el.setAttribute('font-family', 'Benton, sans-serif');
+        el.setAttribute('font-size', fontSize);
+
+        var numberSpace = NUMBER_FONT_SIZE * 1.3;
+        var startY = centerY - strokeWidth / 2 + pad + numberSpace + fontSize - 7;
+        var lineHeight = fontSize * 1.3;
+        lines.forEach(function (lineText, i) {
+          var tspan = document.createElementNS(NS, 'tspan');
+          tspan.setAttribute('x', leftX + pad);
+          tspan.setAttribute('y', startY + i * lineHeight);
+          tspan.textContent = lineText;
+          el.appendChild(tspan);
+        });
+
+        if (duration) {
+          var durationTspan = document.createElementNS(NS, 'tspan');
+          durationTspan.setAttribute('x', leftX + pad);
+          durationTspan.setAttribute('y', centerY + strokeWidth / 2 - pad);
+          durationTspan.setAttribute('font-size', DURATION_FONT_SIZE);
+          durationTspan.setAttribute('font-family', 'BentonMedium, sans-serif');
+          durationTspan.setAttribute('letter-spacing', '0.3');
+          durationTspan.setAttribute('fill', DARK_GREY);
+          durationTspan.textContent = duration.toUpperCase();
+          el.appendChild(durationTspan);
+        }
+        return el;
+      }
+
+      // Bold heading-only square, used for the Appropriations Process
+      // title square — just the wrapped heading, no body, no number.
+      function headingBox(leftX, centerY, strokeWidth, segW, heading) {
+        var pad = 10;
+        var fontSize = TITLE_FONT_SIZE;
+        var maxWidth = Math.max(40, segW - pad * 2);
+        var avgCharWidth = fontSize * 0.55;
+        var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
+
+        var words = heading.split(' ');
+        var lines = [];
+        var current = '';
+        words.forEach(function (w) {
+          var test = current ? current + ' ' + w : w;
+          if (test.length > maxChars && current) {
+            lines.push(current);
+            current = w;
+          } else {
+            current = test;
+          }
+        });
+        if (current) lines.push(current);
+
+        var el = document.createElementNS(NS, 'text');
+        el.setAttribute('x', leftX + pad);
+        el.setAttribute('fill', TEXT_COLOR);
+        el.setAttribute('text-anchor', 'start');
+        el.setAttribute('font-family', 'BentonStrong, sans-serif');
+        el.setAttribute('font-size', fontSize);
+
+        var lineHeight = fontSize * 1.3;
+        var startY = centerY - strokeWidth / 2 + pad + fontSize;
+        lines.forEach(function (lineText, i) {
+          var tspan = document.createElementNS(NS, 'tspan');
+          tspan.setAttribute('x', leftX + pad);
+          tspan.setAttribute('y', startY + i * lineHeight);
+          tspan.textContent = lineText;
+          el.appendChild(tspan);
+        });
+        return el;
+      }
+
+      // Generic centered, word-wrapped text block for a plain-color
+      // segment (no number, no duration) — used for both the black
+      // description box and the yellow friction box. Shrinks its own
+      // font size (down to a floor) until the wrapped text actually fits
+      // the box's available height, so nothing ever renders outside the
+      // square even if the grid sizing estimate was a tight fit.
+      function textBox(leftX, centerY, strokeWidth, segW, text, textColor, bold) {
+        var pad = 10;
+        var maxWidth = Math.max(40, segW - pad * 2);
+        var availableHeight = Math.max(10, strokeWidth - pad * 2);
+
+        function wrap(fontSize) {
+          // Bold characters run wider than regular ones at the same
+          // font-size, so bold text needs a bigger per-character estimate
+          // or its lines run past the box edge before wrapping.
+          var avgCharWidth = fontSize * (bold ? 0.58 : 0.5);
+          var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
+          var words = text.split(' ');
+          var lines = [];
+          var current = '';
+          words.forEach(function (w) {
+            var test = current ? current + ' ' + w : w;
+            if (test.length > maxChars && current) {
+              lines.push(current);
+              current = w;
+            } else {
+              current = test;
+            }
+          });
+          if (current) lines.push(current);
+          return lines;
+        }
+
+        var fontSize = BODY_FONT_SIZE;
+        var lines = wrap(fontSize);
+        while (fontSize > 8 && lines.length * (fontSize * 1.25) > availableHeight) {
+          fontSize -= 1;
+          lines = wrap(fontSize);
+        }
+
+        var el = document.createElementNS(NS, 'text');
+        el.setAttribute('x', leftX + pad);
+        el.setAttribute('fill', textColor);
+        el.setAttribute('text-anchor', 'start');
+        el.setAttribute('font-family', bold ? 'BentonStrong, sans-serif' : 'Benton, sans-serif');
+        el.setAttribute('font-size', fontSize);
+
+        // Top-aligned in the box, however many lines it wraps to.
+        var lineHeight = fontSize * 1.25;
+        var startY = centerY - strokeWidth / 2 + pad + fontSize;
+        lines.forEach(function (lineText, i) {
+          var tspan = document.createElementNS(NS, 'tspan');
+          tspan.setAttribute('x', leftX + pad);
+          tspan.setAttribute('y', startY + i * lineHeight);
+          tspan.textContent = lineText;
+          el.appendChild(tspan);
+        });
+        return el;
+      }
+
+      function wrapLineCount(text, fontSize, maxWidth, avgCharWidthFactor) {
+        var avgCharWidth = fontSize * avgCharWidthFactor;
+        var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
+        var words = text.split(' ');
+        var lines = 0;
+        var current = '';
+        words.forEach(function (w) {
+          var test = current ? current + ' ' + w : w;
+          if (test.length > maxChars && current) {
+            lines++;
+            current = w;
+          } else {
+            current = test;
+          }
+        });
+        if (current) lines++;
+        return lines;
+      }
+
+      // Minimum box height (stroke width) needed for this segment's text
+      // to fit without overflowing, at its own computed width.
+      function requiredHeightForSegment(seg, segW) {
+        var type = seg.type;
+        var groupIdx = seg.group;
+        var pad = 10;
+        var maxWidth = Math.max(40, segW - pad * 2);
+        if (type === 'title') {
+          var titleLines = wrapLineCount(TITLES[groupIdx], TITLE_FONT_SIZE, maxWidth, 0.55);
+          var numberSpace = NUMBER_FONT_SIZE * 1.3;
+          var titleBlock = numberSpace + titleLines * (TITLE_FONT_SIZE * 1.3);
+          var durationSpace = DURATIONS[groupIdx] ? (DURATION_FONT_SIZE + 6) : 0;
+          return pad + titleBlock + durationSpace + pad;
+        }
+        if (type === 'approp-title') {
+          var headingLines = wrapLineCount(TITLES[groupIdx], TITLE_FONT_SIZE, maxWidth, 0.55);
+          return pad + headingLines * (TITLE_FONT_SIZE * 1.3) + pad;
+        }
+        if (type === 'approp-item') {
+          var itemText = (seg.item + 1) + '. ' + APPROP_LIST[seg.item];
+          var itemLines = wrapLineCount(itemText, BODY_FONT_SIZE, maxWidth, 0.5);
+          return pad + itemLines * (BODY_FONT_SIZE * 1.25) + pad;
+        }
+        var text = (type === 'approp-desc') ? BLACK_TEXT[groupIdx] : (type === 'desc') ? BLACK_TEXT[groupIdx] : FRICTIONS[groupIdx];
+        // Friction text renders bold (see textBox's `bold` argument),
+        // which runs wider per character than the regular-weight text
+        // used elsewhere, so it needs a bigger width estimate here too.
+        var lines = wrapLineCount(text, BODY_FONT_SIZE, maxWidth, type === 'friction' ? 0.58 : 0.5);
+        return pad + lines * (BODY_FONT_SIZE * 1.25) + pad;
+      }
+
+      function fillColorFor(seg) {
+        var type = seg.type;
+        var isGrey = (type === 'approp-title' || type === 'approp-desc' || type === 'approp-item');
+        return (type === 'friction') ? '#ffcf01' : isGrey ? DARK_GREY : 'black';
+      }
+
+      // Gap along the line before segment idx: none when it's the same
+      // color as the segment before it (e.g. a step's black title and
+      // black description run together as one unbroken line).
+      function gapBefore(idx) {
+        if (idx === 0) return 0;
+        return fillColorFor(SEGMENTS[idx]) === fillColorFor(SEGMENTS[idx - 1]) ? 0 : GAP;
+      }
+
+      // Horizontal semicircle joining the end of one column to the start
+      // of the next, both at the same y, bulging down (bottom turn) or up
+      // (top turn).
+      function turn(x1, x2, y, bulgeDown, color) {
+        var radius = Math.abs(x2 - x1) / 2;
+        var el = document.createElementNS(NS, 'path');
+        el.setAttribute('d', 'M' + x1 + ',' + y + ' A' + radius + ',' + radius + ' 0 0,' + (bulgeDown ? 0 : 1) + ' ' + x2 + ',' + y);
+        el.setAttribute('fill', 'none');
+        el.setAttribute('stroke', color || 'black');
+        el.setAttribute('stroke-width', LINE_WIDTH);
+        el.setAttribute('stroke-linecap', 'butt');
+        return el;
+      }
+
+      // Yellow caution diamond with a black outline and "!" centered on
+      // the line at (x, cy), marking each yellow friction segment.
+      function warningSign(x, cy) {
+        var h = WARNING_SIZE / 2;
+        var g = document.createElementNS(NS, 'g');
+
+        var diamond = document.createElementNS(NS, 'path');
+        diamond.setAttribute('d', 'M' + x + ',' + (cy - h) + ' L' + (x + h) + ',' + cy + ' L' + x + ',' + (cy + h) + ' L' + (x - h) + ',' + cy + ' Z');
+        diamond.setAttribute('fill', '#ffcf01');
+        diamond.setAttribute('stroke', 'black');
+        diamond.setAttribute('stroke-width', 3);
+        diamond.setAttribute('stroke-linejoin', 'round');
+        g.appendChild(diamond);
+
+        var bar = document.createElementNS(NS, 'rect');
+        bar.setAttribute('x', x - 1.5);
+        bar.setAttribute('y', cy - h * 0.48);
+        bar.setAttribute('width', 3);
+        bar.setAttribute('height', h * 0.62);
+        bar.setAttribute('rx', 1.2);
+        bar.setAttribute('fill', 'black');
+        g.appendChild(bar);
+
+        var dot = document.createElementNS(NS, 'circle');
+        dot.setAttribute('cx', x);
+        dot.setAttribute('cy', cy + h * 0.38);
+        dot.setAttribute('r', 1.9);
+        dot.setAttribute('fill', 'black');
+        g.appendChild(dot);
+
+        return g;
+      }
+
+      // Vertical boustrophedon: the path runs down the first column, turns
+      // along the bottom into the second column and runs up, turns along
+      // the top into the third and runs down, and so on — left to right.
+      // Each step's text sits to the right of its stretch of the line.
+      function build() {
+        var containerWidth = svg.clientWidth;
+        if (!containerWidth) return;
+
+        var columns = Math.max(1, Math.floor((containerWidth - LINE_WIDTH) / MIN_COLUMN));
+        var colW = Math.floor((containerWidth - LINE_WIDTH) / columns);
+        var textW = colW - COL_GAP;
+        var perColumn = Math.ceil(TOTAL / columns);
+
+        // Split the segments into columns, each cell as tall as its own
+        // text needs.
+        var cols = [];
+        for (var c = 0; c < columns; c++) {
+          var cells = [];
+          var h = 0;
+          for (var k = 0; k < perColumn; k++) {
+            var idx = c * perColumn + k;
+            if (idx >= TOTAL) break;
+            var need = Math.ceil(requiredHeightForSegment(SEGMENTS[idx], textW));
+            cells.push({ idx: idx, h: need });
+            h += need + (k > 0 ? gapBefore(idx) : 0);
+          }
+          if (cells.length) cols.push({ cells: cells, height: h });
+        }
+
+        // Every column spans the same height so the turns line up; the
+        // last cell before each turn stretches to fill any slack.
+        var colHeight = 0;
+        cols.forEach(function (col) { if (col.height > colHeight) colHeight = col.height; });
+
+        var radius = cols.length > 1 ? colW / 2 : 0;
+        var TOP_PAD = radius + LINE_WIDTH;
+        var BOTTOM_PAD = radius + LINE_WIDTH;
+        var vbWidth = containerWidth;
+        var vbHeight = TOP_PAD + colHeight + BOTTOM_PAD;
+        svg.setAttribute('viewBox', '0 0 ' + vbWidth + ' ' + vbHeight);
+        svg.setAttribute('preserveAspectRatio', 'none');
+        svg.style.margin = '';
+
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+        var topY = TOP_PAD;
+        var bottomY = TOP_PAD + colHeight;
+
+        cols.forEach(function (col, ci) {
+          var lineX = LINE_WIDTH / 2 + ci * colW;
+          var goingDown = (ci % 2 === 0);
+          var isLastCol = (ci === cols.length - 1);
+
+          // Turn into the next column, colored like the segment it leads into.
+          if (!isLastCol) {
+            var nextFirst = SEGMENTS[cols[ci + 1].cells[0].idx];
+            svg.appendChild(turn(lineX, lineX + colW, goingDown ? bottomY : topY, goingDown, fillColorFor(nextFirst)));
+          }
+
+          // Walk the column in path order from its entry end.
+          var pos = goingDown ? topY : bottomY;
+          col.cells.forEach(function (cell, k) {
+            var seg = SEGMENTS[cell.idx];
+            var type = seg.type;
+            var groupIdx = seg.group;
+            var isLastCell = (k === col.cells.length - 1);
+            var span = cell.h;
+            if (isLastCell && !isLastCol) span = Math.abs((goingDown ? bottomY : topY) - pos);
+
+            var y1 = pos;
+            var y2 = goingDown ? pos + span : pos - span;
+            var cellTop = Math.min(y1, y2);
+            var gap = isLastCell ? 0 : gapBefore(col.cells[k + 1].idx);
+            pos = goingDown ? y2 + gap : y2 - gap;
+
+            var line = document.createElementNS(NS, 'line');
+            line.setAttribute('x1', lineX);
+            line.setAttribute('x2', lineX);
+            line.setAttribute('y1', y1);
+            line.setAttribute('y2', y2);
+            line.setAttribute('stroke', fillColorFor(seg));
+            line.setAttribute('stroke-width', LINE_WIDTH);
+            svg.appendChild(line);
+
+            // Text box to the right of the line, top-aligned with this
+            // stretch of it, sized to the text's own required height.
+            var x = lineX + LINE_WIDTH / 2;
+            var boxH = cell.h;
+            var cy = cellTop + boxH / 2;
+
+            // Caution sign on the line, level with the friction text.
+            if (type === 'friction') svg.appendChild(warningSign(lineX, cy));
+
+            if (type === 'title') {
+              svg.appendChild(label(x, cy, boxH, groupIdx));
+              svg.appendChild(stepTitle(x, cy, boxH, textW, TITLES[groupIdx], DURATIONS[groupIdx]));
+            } else if (type === 'desc') {
+              svg.appendChild(textBox(x, cy, boxH, textW, BLACK_TEXT[groupIdx], TEXT_COLOR));
+            } else if (type === 'approp-title') {
+              svg.appendChild(headingBox(x, cy, boxH, textW, TITLES[groupIdx]));
+            } else if (type === 'approp-desc') {
+              svg.appendChild(textBox(x, cy, boxH, textW, BLACK_TEXT[groupIdx], TEXT_COLOR));
+            } else if (type === 'approp-item') {
+              var itemText = (seg.item + 1) + '. ' + APPROP_LIST[seg.item];
+              svg.appendChild(textBox(x, cy, boxH, textW, itemText, TEXT_COLOR));
+            } else {
+              svg.appendChild(textBox(x, cy, boxH, textW, FRICTIONS[groupIdx], 'black', true));
+            }
+          });
+        });
+      }
+
+      build();
+      window.addEventListener('resize', build);
+    })();
+  </script>
+</body>
+</html>

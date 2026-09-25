@@ -23,6 +23,24 @@ body {
   font-family: "Benton", sans-serif;
 }
 
+/* Draft banner pinned to the top of every page while it scrolls. The
+   negative margins pull it out to the edges of body's padding. */
+body::before {
+  content: "DRAFT \2014  NOT FOR SHARING";
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  margin: -24px -16px 24px;
+  padding: 8px 16px;
+  background: #d7261e;
+  color: #ffffff;
+  font-family: "BentonStrong", sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
 #container {
   max-width: 900px;
   margin: 0 auto;

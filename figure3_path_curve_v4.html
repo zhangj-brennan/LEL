@@ -486,6 +486,9 @@
         if (!containerWidth) return;
 
         var columns = Math.max(1, Math.floor((containerWidth - LINE_WIDTH) / MIN_COLUMN));
+        // Two columns read awkwardly (one down, one up), so on screens
+        // that would only fit two, fall back to a single column.
+        if (columns === 2) columns = 1;
         var colW = Math.floor((containerWidth - LINE_WIDTH) / columns);
         var textW = colW - COL_GAP;
         var perColumn = Math.ceil(TOTAL / columns);

@@ -81,9 +81,10 @@
       var BODY_FONT_SIZE = 12;   // minimum size for description/friction/list body text
       var DURATION_FONT_SIZE = 12; // minimum size for the time-marker labels
       var LINE_WIDTH = 10;       // stroke width of the path line and its curves
-      var SQUIGGLE_LENGTH = 40;   // length of the squiggle in the middle of yellow segments
-      var SQUIGGLE_AMPLITUDE = 6; // how far the squiggle swings left/right of the line
-      var SQUIGGLE_WAVES = 2;     // number of full waves in the squiggle
+      var WOBBLE = 7;             // max left/right drift (px) of the wobbly yellow friction segments
+      var WOBBLE_REF = 180;       // stretch of line (px) that holds 4-9 half-waves of wobble
+      var FADE_LENGTH = 50;       // px over which a yellow piece blends into a neighboring black one
+      var FRICTION_COLOR = '#ffcf01';
       var TEXT_COLOR = 'black';  // text now sits on the page background, under the line
 
       var TITLES = [
@@ -421,7 +422,7 @@
       function fillColorFor(seg) {
         var type = seg.type;
         var isGrey = (type === 'approp-title' || type === 'approp-desc' || type === 'approp-item');
-        return (type === 'friction') ? '#ffcf01' : isGrey ? DARK_GREY : 'black';
+        return (type === 'friction') ? FRICTION_COLOR : isGrey ? DARK_GREY : 'black';
       }
 
       // Gap along the line before segment idx: none when it's the same
@@ -432,43 +433,52 @@
         return fillColorFor(SEGMENTS[idx]) === fillColorFor(SEGMENTS[idx - 1]) ? 0 : GAP;
       }
 
-      // Horizontal semicircle joining the end of one column to the start
-      // of the next, both at the same y, bulging down (bottom turn) or up
-      // (top turn).
-      function turn(x1, x2, y, bulgeDown, color) {
-        var radius = Math.abs(x2 - x1) / 2;
-        var el = document.createElementNS(NS, 'path');
-        el.setAttribute('d', 'M' + x1 + ',' + y + ' A' + radius + ',' + radius + ' 0 0,' + (bulgeDown ? 0 : 1) + ' ' + x2 + ',' + y);
-        el.setAttribute('fill', 'none');
-        el.setAttribute('stroke', color || 'black');
-        el.setAttribute('stroke-width', LINE_WIDTH);
-        el.setAttribute('stroke-linecap', 'butt');
-        return el;
+      // Wobbly offset for a yellow friction stretch at t (0-1 along it),
+      // `len` px long. Each stretch gets its own mix of waves, seeded so
+      // the shape stays the same across resizes, with the wave count
+      // scaled to its length so short and long stretches wobble at the
+      // same density. The envelope brings it back to flat at both ends so
+      // it always meets the straight path it connects to.
+      function rawWobble(seed, t, len) {
+        var scale = len / WOBBLE_REF;
+        var y = 0;
+        for (var k = 4; k <= 9; k++) {
+          var r1 = Math.sin(seed * 12.9898 + k * 78.233) * 43758.5453;
+          var r2 = Math.sin(seed * 39.3468 + k * 11.135) * 24634.6345;
+          var amp = (r1 - Math.floor(r1)) * 2 - 1;
+          var phase = (r2 - Math.floor(r2)) * Math.PI * 2;
+          y += amp * Math.sin(k * scale * Math.PI * t + phase);
+        }
+        return Math.pow(Math.sin(Math.PI * t), 0.6) * Math.sin(Math.PI * t) * y;
       }
 
-      // Same turn as turn(), but with a squiggle in the middle of the
-      // arc (swinging in and out from its center), used when the turn is
-      // yellow so it matches the squiggles on the yellow segments.
-      function squiggleTurn(x1, x2, y, bulgeDown, color) {
-        var radius = Math.abs(x2 - x1) / 2;
-        var cx = (x1 + x2) / 2;
-        var arcLen = Math.PI * radius;
-        var waveLen = Math.min(SQUIGGLE_LENGTH, arcLen * 0.6);
-        var waveStart = (arcLen - waveLen) / 2;
-        var steps = 120;
-        var d = '';
-        for (var i = 0; i <= steps; i++) {
-          var s = (i / steps) * arcLen;
-          var u = (s - waveStart) / waveLen;
-          var r = radius;
-          if (u > 0 && u < 1) r += SQUIGGLE_AMPLITUDE * Math.sin(u * SQUIGGLE_WAVES * 2 * Math.PI);
-          var angle = Math.PI - s / radius; // x1 side is angle PI, x2 side is 0
-          var px = cx + r * Math.cos(angle) * (x2 > x1 ? 1 : -1);
-          var py = y + r * Math.sin(angle) * (bulgeDown ? 1 : -1);
-          d += (i ? ' L' : 'M') + px.toFixed(2) + ',' + py.toFixed(2);
+      // Scale each stretch so its biggest bump is WOBBLE px, however its
+      // random mix happened to come out.
+      var wobblePeaks = {};
+      function wobbleAt(seed, t, len) {
+        var key = seed + ':' + Math.round(len);
+        if (!wobblePeaks[key]) {
+          var peak = 0;
+          for (var i = 0; i <= 200; i++) peak = Math.max(peak, Math.abs(rawWobble(seed, i / 200, len)));
+          wobblePeaks[key] = peak || 1;
         }
+        return WOBBLE * rawWobble(seed, t, len) / wobblePeaks[key];
+      }
+
+      function hexToRgb(hex) {
+        if (hex === 'black') return [0, 0, 0];
+        var n = parseInt(hex.replace('#', ''), 16);
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      }
+
+      function mixColor(a, b, t) {
+        var ca = hexToRgb(a), cb = hexToRgb(b);
+        return 'rgb(' + ca.map(function (v, k) { return Math.round(v + (cb[k] - v) * t); }).join(',') + ')';
+      }
+
+      function strokePath(points, color) {
         var el = document.createElementNS(NS, 'path');
-        el.setAttribute('d', d);
+        el.setAttribute('d', points.map(function (pt, i) { return (i ? 'L' : 'M') + pt[0].toFixed(2) + ',' + pt[1].toFixed(2); }).join(' '));
         el.setAttribute('fill', 'none');
         el.setAttribute('stroke', color);
         el.setAttribute('stroke-width', LINE_WIDTH);
@@ -477,28 +487,44 @@
         return el;
       }
 
-      // Vertical line from y1 to y2 with a sine-wave squiggle in the
-      // middle, used for the yellow friction segments.
-      function squiggleLine(x, y1, y2, color) {
-        var dir = y2 > y1 ? 1 : -1;
-        var len = Math.abs(y2 - y1);
-        var waveLen = Math.min(SQUIGGLE_LENGTH, len * 0.6);
-        var waveStart = y1 + dir * (len - waveLen) / 2;
-        var steps = 40;
-        var d = 'M' + x + ',' + y1 + ' L' + x + ',' + waveStart;
-        for (var i = 1; i <= steps; i++) {
-          var t = i / steps;
-          var wx = x + SQUIGGLE_AMPLITUDE * Math.sin(t * SQUIGGLE_WAVES * 2 * Math.PI);
-          d += ' L' + wx.toFixed(2) + ',' + (waveStart + dir * t * waveLen).toFixed(2);
+      // Strokes a wobbly polyline in `color`. If startColor / endColor is
+      // given, the ends blend from that neighbor's color into `color`
+      // (over FADE_LENGTH px, or a third of the stretch if it's short),
+      // drawn as short overlapping pieces so the blend follows the line
+      // around bends and curves.
+      function fadedStroke(points, color, startColor, endColor) {
+        var g = document.createElementNS(NS, 'g');
+        g.appendChild(strokePath(points, color));
+        if (!startColor && !endColor) return g;
+
+        var dists = [0];
+        for (var i = 1; i < points.length; i++) {
+          dists.push(dists[i - 1] + Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]));
         }
-        d += ' L' + x + ',' + y2;
-        var el = document.createElementNS(NS, 'path');
-        el.setAttribute('d', d);
-        el.setAttribute('fill', 'none');
-        el.setAttribute('stroke', color);
-        el.setAttribute('stroke-width', LINE_WIDTH);
-        el.setAttribute('stroke-linejoin', 'round');
-        return el;
+        var total = dists[dists.length - 1];
+        var fade = Math.min(FADE_LENGTH, total / 3);
+        for (var j = 0; j < points.length - 1; j++) {
+          var mid = (dists[j] + dists[j + 1]) / 2;
+          var fromStart = startColor ? mid / fade : Infinity;
+          var fromEnd = endColor ? (total - mid) / fade : Infinity;
+          if (fromStart >= 1 && fromEnd >= 1) continue;
+          var t = Math.min(fromStart, fromEnd);
+          t = t * t * (3 - 2 * t); // ease in and out
+          var neighborColor = fromStart < fromEnd ? startColor : endColor;
+          var piece = document.createElementNS(NS, 'line');
+          piece.setAttribute('x1', points[j][0]);
+          piece.setAttribute('y1', points[j][1]);
+          piece.setAttribute('x2', points[j + 1][0]);
+          piece.setAttribute('y2', points[j + 1][1]);
+          piece.setAttribute('stroke', mixColor(neighborColor, color, t));
+          piece.setAttribute('stroke-width', LINE_WIDTH);
+          // Round caps fill the wedge-shaped seams between pieces on
+          // bends; the outermost ones tuck under the neighbor's own line.
+          var outermost = (j === 0 && startColor) || (j === points.length - 2 && endColor);
+          piece.setAttribute('stroke-linecap', outermost ? 'butt' : 'round');
+          g.appendChild(piece);
+        }
+        return g;
       }
 
       // Vertical boustrophedon: the path runs down the first column, turns
@@ -509,11 +535,14 @@
         var containerWidth = svg.clientWidth;
         if (!containerWidth) return;
 
-        var columns = Math.max(1, Math.floor((containerWidth - LINE_WIDTH) / MIN_COLUMN));
+        // The first line sits WOBBLE px in from the left edge so its
+        // wobble never gets clipped.
+        var usableWidth = containerWidth - LINE_WIDTH - WOBBLE;
+        var columns = Math.max(1, Math.floor(usableWidth / MIN_COLUMN));
         // Two columns read awkwardly (one down, one up), so on screens
         // that would only fit two, fall back to a single column.
         if (columns === 2) columns = 1;
-        var colW = Math.floor((containerWidth - LINE_WIDTH) / columns);
+        var colW = Math.floor(usableWidth / columns);
         var textW = colW - COL_GAP;
         var perColumn = Math.ceil(TOTAL / columns);
 
@@ -539,8 +568,8 @@
         cols.forEach(function (col) { if (col.height > colHeight) colHeight = col.height; });
 
         var radius = cols.length > 1 ? colW / 2 : 0;
-        var TOP_PAD = radius + LINE_WIDTH;
-        var BOTTOM_PAD = radius + LINE_WIDTH;
+        var TOP_PAD = radius + LINE_WIDTH + WOBBLE;
+        var BOTTOM_PAD = radius + LINE_WIDTH + WOBBLE;
         var vbWidth = containerWidth;
         var vbHeight = TOP_PAD + colHeight + BOTTOM_PAD;
         svg.setAttribute('viewBox', '0 0 ' + vbWidth + ' ' + vbHeight);
@@ -552,17 +581,51 @@
         var topY = TOP_PAD;
         var bottomY = TOP_PAD + colHeight;
 
+        // The whole path is collected as one list of points (colors[i] is
+        // the color of the stretch ending at pts[i]) and stroked at the
+        // end in same-color runs, so there are no seams between pieces.
+        var pathLayer = document.createElementNS(NS, 'g');
+        svg.appendChild(pathLayer);
+        var pts = [];
+        var colors = [];
+        function addPoint(x, y, color) {
+          var last = pts[pts.length - 1];
+          if (last && Math.abs(last[0] - x) < 0.01 && Math.abs(last[1] - y) < 0.01) return;
+          pts.push([x, y]);
+          colors.push(color);
+        }
+
+        // Vertical stretch of line; wobbles side to side when given a seed.
+        function addRun(x, y1, y2, color, seed) {
+          var len = Math.abs(y2 - y1);
+          var steps = Math.max(1, Math.ceil(len / 2));
+          for (var i = 0; i <= steps; i++) {
+            var t = i / steps;
+            var wx = (seed != null) ? wobbleAt(seed, t, len) : 0;
+            addPoint(x + wx, y1 + (y2 - y1) * t, color);
+          }
+        }
+
+        // Semicircle joining the end of one column to the start of the
+        // next, both at the same y, bulging down (bottom turn) or up (top
+        // turn); its radius wobbles in and out when given a seed.
+        function addTurn(x1, x2, y, bulgeDown, color, seed) {
+          var r0 = Math.abs(x2 - x1) / 2;
+          var cx = (x1 + x2) / 2;
+          var arcLen = Math.PI * r0;
+          var steps = Math.max(2, Math.ceil(arcLen / 2));
+          for (var i = 0; i <= steps; i++) {
+            var t = i / steps;
+            var angle = Math.PI - Math.PI * t; // x1 side is angle PI, x2 side is 0
+            var r = r0 + ((seed != null) ? wobbleAt(seed, t, arcLen) : 0);
+            addPoint(cx + r * Math.cos(angle) * (x2 > x1 ? 1 : -1), y + r * Math.sin(angle) * (bulgeDown ? 1 : -1), color);
+          }
+        }
+
         cols.forEach(function (col, ci) {
-          var lineX = LINE_WIDTH / 2 + ci * colW;
+          var lineX = LINE_WIDTH / 2 + WOBBLE + ci * colW;
           var goingDown = (ci % 2 === 0);
           var isLastCol = (ci === cols.length - 1);
-
-          // Turn into the next column, colored like the segment it leads into.
-          if (!isLastCol) {
-            var nextFirst = SEGMENTS[cols[ci + 1].cells[0].idx];
-            var turnFn = (nextFirst.type === 'friction') ? squiggleTurn : turn;
-            svg.appendChild(turnFn(lineX, lineX + colW, goingDown ? bottomY : topY, goingDown, fillColorFor(nextFirst)));
-          }
 
           // Walk the column in path order from its entry end.
           var pos = goingDown ? topY : bottomY;
@@ -583,18 +646,7 @@
             // Stretch the line across the gap to the next segment so the
             // path has no white breaks; the text keeps its spacing.
             var lineEnd = goingDown ? y2 + gap : y2 - gap;
-            if (type === 'friction') {
-              svg.appendChild(squiggleLine(lineX, y1, lineEnd, fillColorFor(seg)));
-            } else {
-              var line = document.createElementNS(NS, 'line');
-              line.setAttribute('x1', lineX);
-              line.setAttribute('x2', lineX);
-              line.setAttribute('y1', y1);
-              line.setAttribute('y2', lineEnd);
-              line.setAttribute('stroke', fillColorFor(seg));
-              line.setAttribute('stroke-width', LINE_WIDTH);
-              svg.appendChild(line);
-            }
+            addRun(lineX, y1, lineEnd, fillColorFor(seg), type === 'friction' ? groupIdx : null);
 
             // Text box to the right of the line, top-aligned with this
             // stretch of it, sized to the text's own required height.
@@ -618,6 +670,38 @@
               svg.appendChild(textBox(x, cy, boxH, textW, FRICTIONS[groupIdx], 'black', true));
             }
           });
+
+          // Turn into the next column, colored like the segment it leads
+          // into (and wobbly if that's a yellow one). Offset seed so the
+          // turn doesn't copy its segment's wobble.
+          if (!isLastCol) {
+            var nextFirst = SEGMENTS[cols[ci + 1].cells[0].idx];
+            addTurn(lineX, lineX + colW, goingDown ? bottomY : topY, goingDown, fillColorFor(nextFirst),
+              nextFirst.type === 'friction' ? nextFirst.group + 100 : null);
+          }
+        });
+
+        // Split the path into same-color runs.
+        var runs = [];
+        for (var i = 1; i < pts.length; i++) {
+          var lastRun = runs[runs.length - 1];
+          if (lastRun && lastRun.color === colors[i]) lastRun.end = i;
+          else runs.push({ color: colors[i], start: i - 1, end: i });
+        }
+
+        // Solid runs first, each stretched one point into its neighbors
+        // so the joins overlap instead of leaving a hairline seam.
+        runs.forEach(function (run) {
+          if (run.color === FRICTION_COLOR) return;
+          pathLayer.appendChild(strokePath(pts.slice(Math.max(0, run.start - 1), Math.min(pts.length, run.end + 2)), run.color));
+        });
+
+        // Yellow runs on top, blending into whatever color they meet.
+        runs.forEach(function (run, ri) {
+          if (run.color !== FRICTION_COLOR) return;
+          var before = ri > 0 ? runs[ri - 1].color : null;
+          var after = ri < runs.length - 1 ? runs[ri + 1].color : null;
+          pathLayer.appendChild(fadedStroke(pts.slice(run.start, run.end + 1), run.color, before, after));
         });
       }
 

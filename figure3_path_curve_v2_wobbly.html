@@ -8,7 +8,8 @@
 </head>
 <body>
   <div id="container">
-    <div class="op-intro-row">
+    <div class="figure-label">Figure 3</div>
+    <div class="op-intro-row" style="border-top: 2px solid black; padding-top: 12px;">
       <div class="op-intro">
         <h2>Meet Officer P</h2>
         <p>Officer P is a veteran police officer in a small rural town who sees the same challenges every day: overdoses, behavioral health crises, and homelessness. He knows that jail, the main tool he has at hand, will not help steer people toward sobriety or stable lives.</p>
@@ -18,13 +19,7 @@
       </div>
     </div>
 
-    <div class="figure-label">Figure 3</div>
-    <div id="title">
-      <h1>Officer P&rsquo;s Journey</h1>
-    </div>
-    <p class="deck">This hypothetical scenario draws on real-world experiences shared by law enforcement leaders, along with information from resources and experts on DOJ funding.</p>
-
-    <div class="op-appropriations">
+    <div class="op-appropriations" style="margin-bottom: 32px;">
       <h2>Appropriations Process</h2>
       <p>Before Officer P begins searching for grants, the annual appropriations process determines how much funding is available for DOJ grant programs. This process can affect when grant opportunities are announced and whether awards can be made.</p>
       <ol class="op-approp-list">
@@ -34,6 +29,11 @@
         <li>OMB apportions funds to agencies</li>
         <li>Agencies release NOFOs based on available or anticipated funding</li>
       </ol>
+    </div>
+
+    <div class="op-journey" style="margin-bottom: 28px;">
+      <h2>Officer P&rsquo;s Journey</h2>
+      <p class="deck">This hypothetical scenario draws on real-world experiences shared by law enforcement leaders, along with information from resources and experts on DOJ funding.</p>
     </div>
 
     <svg class="pathc-spine" aria-hidden="true"></svg>
@@ -72,18 +72,20 @@
 
   <script>
     (function () {
-      var MIN_COLUMN = 220;    // narrowest a column (line + text) can be before dropping a column
-      var GAP = 2;             // gap between steps along the line
-      var COL_GAP = 40;        // space between one column's text and the next column's line
+      var MIN_SQUARE = 180;    // smallest a grid square is allowed to be before dropping a column
+      var GAP = 2;             // gap between squares in the same row
+      var ROW_GAP = 40;        // gap between rows
       var DARK_GREY = '#4d4d4d'; // background for the black description squares (title squares stay black)
-      var NUMBER_FONT_SIZE = 28; // step number badge, e.g. "1"
+      var NUMBER_FONT_SIZE = 15; // step number inside its circle badge on the line
+      var FADE_LENGTH = 50;      // px over which a yellow piece blends into a neighboring black one
+      var WOBBLE = 7;            // max up/down drift (px) of the wobbly yellow friction segments
+      var BADGE_SIZE = 30;       // diameter of the black number circle (matches WARNING_SIZE)
       var TITLE_FONT_SIZE = 16;  // step title text, e.g. "Learn About the Funding Process"
       var BODY_FONT_SIZE = 12;   // minimum size for description/friction/list body text
       var DURATION_FONT_SIZE = 12; // minimum size for the time-marker labels
       var LINE_WIDTH = 10;       // stroke width of the path line and its curves
-      var SQUIGGLE_LENGTH = 40;   // length of the squiggle in the middle of yellow segments
-      var SQUIGGLE_AMPLITUDE = 6; // how far the squiggle swings left/right of the line
-      var SQUIGGLE_WAVES = 2;     // number of full waves in the squiggle
+      var WARNING_SIZE = 30;     // height/width of the caution diamond on yellow segments
+      var PATH_COLOR = 'black'; // path line, curves, and step numbers
       var TEXT_COLOR = 'black';  // text now sits on the page background, under the line
 
       var TITLES = [
@@ -196,22 +198,180 @@
         return el;
       }
 
-      function label(leftX, centerY, strokeWidth, n) {
-        var pad = 10;
+      // Yellow caution diamond with a black outline and "!" centered at
+      // (x, cy), marking each yellow friction segment on the line.
+      function warningSign(x, cy) {
+        var h = WARNING_SIZE / 2;
+        var g = document.createElementNS(NS, 'g');
+
+        var diamond = document.createElementNS(NS, 'path');
+        diamond.setAttribute('d', 'M' + x + ',' + (cy - h) + ' L' + (x + h) + ',' + cy + ' L' + x + ',' + (cy + h) + ' L' + (x - h) + ',' + cy + ' Z');
+        diamond.setAttribute('fill', '#ffcf01');
+        diamond.setAttribute('stroke', 'black');
+        diamond.setAttribute('stroke-width', 3);
+        diamond.setAttribute('stroke-linejoin', 'round');
+        g.appendChild(diamond);
+
+        var bar = document.createElementNS(NS, 'rect');
+        bar.setAttribute('x', x - 1.5);
+        bar.setAttribute('y', cy - h * 0.48);
+        bar.setAttribute('width', 3);
+        bar.setAttribute('height', h * 0.62);
+        bar.setAttribute('rx', 1.2);
+        bar.setAttribute('fill', 'black');
+        g.appendChild(bar);
+
+        var dot = document.createElementNS(NS, 'circle');
+        dot.setAttribute('cx', x);
+        dot.setAttribute('cy', cy + h * 0.38);
+        dot.setAttribute('r', 1.9);
+        dot.setAttribute('fill', 'black');
+        g.appendChild(dot);
+
+        return g;
+      }
+
+      // Wobbly offset for a yellow friction segment at t (0-1 along it).
+      // Each segment gets its own mix of waves, seeded by its step number
+      // so the shape stays the same across resizes. The sin(pi t)^2
+      // envelope brings it back to flat at both ends so it always meets
+      // the straight path it connects to.
+      function rawWobble(seed, t) {
+        var y = 0;
+        for (var k = 4; k <= 9; k++) {
+          var r1 = Math.sin(seed * 12.9898 + k * 78.233) * 43758.5453;
+          var r2 = Math.sin(seed * 39.3468 + k * 11.135) * 24634.6345;
+          var amp = (r1 - Math.floor(r1)) * 2 - 1;
+          var phase = (r2 - Math.floor(r2)) * Math.PI * 2;
+          y += amp * Math.sin(k * Math.PI * t + phase);
+        }
+        // Steep ramp at the ends so the squiggle is near full size for
+        // most of the segment but still flattens out where it connects.
+        return Math.pow(Math.sin(Math.PI * t), 0.6) * Math.sin(Math.PI * t) * y;
+      }
+
+      // Scale each segment so its biggest bump is WOBBLE px, however
+      // its random mix happened to come out.
+      var wobblePeaks = {};
+      function wobbleAt(seed, t) {
+        if (!wobblePeaks[seed]) {
+          var peak = 0;
+          for (var i = 0; i <= 100; i++) peak = Math.max(peak, Math.abs(rawWobble(seed, i / 100)));
+          wobblePeaks[seed] = peak || 1;
+        }
+        return WOBBLE * rawWobble(seed, t) / wobblePeaks[seed];
+      }
+
+      function hexToRgb(hex) {
+        if (hex === 'black') return [0, 0, 0];
+        var n = parseInt(hex.replace('#', ''), 16);
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      }
+
+      function mixColor(a, b, t) {
+        var ca = hexToRgb(a), cb = hexToRgb(b);
+        return 'rgb(' + ca.map(function (v, k) { return Math.round(v + (cb[k] - v) * t); }).join(',') + ')';
+      }
+
+      // Strokes a wobbly polyline in `color`. If startColor / endColor is
+      // given, the first / last FADE_LENGTH px along the line blend from
+      // that neighbor's color into `color`, drawn as short overlapping
+      // pieces so the blend follows the line around bends and curves.
+      function fadedStroke(points, color, startColor, endColor) {
+        var g = document.createElementNS(NS, 'g');
+        var d = points.map(function (pt, i) { return (i ? 'L' : 'M') + pt[0].toFixed(2) + ',' + pt[1].toFixed(2); }).join(' ');
+        var base = document.createElementNS(NS, 'path');
+        base.setAttribute('d', d);
+        base.setAttribute('fill', 'none');
+        base.setAttribute('stroke', color);
+        base.setAttribute('stroke-width', LINE_WIDTH);
+        base.setAttribute('stroke-linejoin', 'round');
+        base.setAttribute('stroke-linecap', 'butt');
+        g.appendChild(base);
+
+        function fadeFrom(pts, neighborColor) {
+          var dist = 0;
+          for (var i = 0; i < pts.length - 1 && dist < FADE_LENGTH; i++) {
+            var a = pts[i], b = pts[i + 1];
+            var len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+            var t = Math.min(1, (dist + len / 2) / FADE_LENGTH);
+            t = t * t * (3 - 2 * t); // ease in and out
+            var piece = document.createElementNS(NS, 'line');
+            piece.setAttribute('x1', a[0]);
+            piece.setAttribute('y1', a[1]);
+            piece.setAttribute('x2', b[0]);
+            piece.setAttribute('y2', b[1]);
+            piece.setAttribute('stroke', mixColor(neighborColor, color, t));
+            piece.setAttribute('stroke-width', LINE_WIDTH);
+            // Round caps fill the wedge-shaped seams between pieces on
+            // bends; the first one tucks under the neighbor's own line.
+            piece.setAttribute('stroke-linecap', i === 0 ? 'butt' : 'round');
+            g.appendChild(piece);
+            dist += len;
+          }
+        }
+        if (startColor) fadeFrom(points, startColor);
+        if (endColor) fadeFrom(points.slice().reverse(), endColor);
+        return g;
+      }
+
+      function wobblyLine(x1, x2, lineY, seed, color, startColor, endColor) {
+        var steps = 120;
+        var points = [];
+        for (var i = 0; i <= steps; i++) {
+          var t = i / steps;
+          points.push([x1 + (x2 - x1) * t, lineY + wobbleAt(seed, t)]);
+        }
+        return fadedStroke(points, color, startColor, endColor);
+      }
+
+      // Yellow row-to-row connector: the same semicircle as semicircle(),
+      // but with its radius nudged in and out by wobbleAt() so it matches
+      // the wobbly friction segments. The wobble is zero at both ends, so
+      // it still meets the rows above and below exactly.
+      function wobblySemicircle(x, y1, y2, sweep, seed, color, startColor, endColor) {
+        var radius = Math.abs(y2 - y1) / 2;
+        var cy = (y1 + y2) / 2;
+        var dir = sweep ? 1 : -1;
+        var steps = 160;
+        var points = [];
+        for (var i = 0; i <= steps; i++) {
+          var t = i / steps;
+          var angle = -Math.PI / 2 + Math.PI * t;
+          var r = radius + wobbleAt(seed, t);
+          points.push([x + dir * Math.cos(angle) * r, cy + Math.sin(angle) * r]);
+        }
+        return fadedStroke(points, color, startColor, endColor);
+      }
+
+      // Black circle with the white step number, centered at (x, cy) on
+      // the line, the same way warningSign() marks the friction segments.
+      function numberBadge(x, cy, n) {
+        var g = document.createElementNS(NS, 'g');
+
+        var circle = document.createElementNS(NS, 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', cy);
+        circle.setAttribute('r', BADGE_SIZE / 2);
+        circle.setAttribute('fill', 'black');
+        g.appendChild(circle);
+
         var el = document.createElementNS(NS, 'text');
-        el.setAttribute('x', leftX + pad);
-        el.setAttribute('y', centerY - strokeWidth / 2 + pad);
-        el.setAttribute('fill', TEXT_COLOR);
-        el.setAttribute('text-anchor', 'start');
-        el.setAttribute('dominant-baseline', 'hanging');
+        el.setAttribute('x', x);
+        el.setAttribute('y', cy);
+        el.setAttribute('fill', 'white');
+        el.setAttribute('text-anchor', 'middle');
+        el.setAttribute('dominant-baseline', 'central');
         el.setAttribute('font-family', 'BentonStrong, sans-serif');
         el.setAttribute('font-size', NUMBER_FONT_SIZE);
         el.textContent = n;
-        return el;
+        g.appendChild(el);
+
+        return g;
       }
 
-      // Number/title square used for steps 1-9 — the number badge (drawn
-      // separately by label()) plus the title and duration, no
+      // Number/title square used for steps 1-9 — the title and duration
+      // (the number sits on the line via numberBadge()), no
       // description text (that lives in its own square via textBox()).
       function stepTitle(leftX, centerY, strokeWidth, segW, text, duration) {
         var pad = 10;
@@ -241,8 +401,7 @@
         el.setAttribute('font-family', 'Benton, sans-serif');
         el.setAttribute('font-size', fontSize);
 
-        var numberSpace = NUMBER_FONT_SIZE * 1.3;
-        var startY = centerY - strokeWidth / 2 + pad + numberSpace + fontSize - 7;
+        var startY = centerY - strokeWidth / 2 + pad + fontSize;
         var lineHeight = fontSize * 1.3;
         lines.forEach(function (lineText, i) {
           var tspan = document.createElementNS(NS, 'tspan');
@@ -396,8 +555,7 @@
         var maxWidth = Math.max(40, segW - pad * 2);
         if (type === 'title') {
           var titleLines = wrapLineCount(TITLES[groupIdx], TITLE_FONT_SIZE, maxWidth, 0.55);
-          var numberSpace = NUMBER_FONT_SIZE * 1.3;
-          var titleBlock = numberSpace + titleLines * (TITLE_FONT_SIZE * 1.3);
+          var titleBlock = titleLines * (TITLE_FONT_SIZE * 1.3);
           var durationSpace = DURATIONS[groupIdx] ? (DURATION_FONT_SIZE + 6) : 0;
           return pad + titleBlock + durationSpace + pad;
         }
@@ -418,206 +576,238 @@
         return pad + lines * (BODY_FONT_SIZE * 1.25) + pad;
       }
 
+      // Simple boustrophedon rows: a horizontal run of `columns` squares
+      // going right, then the next row immediately below going left, then
+      // right again, and so on — no extra square dropped at the turns.
+      function buildPath(columns) {
+        var cells = [];
+        var n = 1;
+        var row = 0, col = 0, dir = 1;
+        while (n <= TOTAL) {
+          for (var i = 0; i < columns && n <= TOTAL; i++) {
+            cells.push({ n: n, row: row, col: col });
+            n++;
+            if (i < columns - 1) col += dir;
+          }
+          row += 1;
+          dir = -dir;
+        }
+        return cells;
+      }
+
       function fillColorFor(seg) {
         var type = seg.type;
         var isGrey = (type === 'approp-title' || type === 'approp-desc' || type === 'approp-item');
-        return (type === 'friction') ? '#ffcf01' : isGrey ? DARK_GREY : 'black';
+        return (type === 'friction') ? '#ffcf01' : isGrey ? DARK_GREY : PATH_COLOR;
       }
 
-      // Gap along the line before segment idx: none when it's the same
-      // color as the segment before it (e.g. a step's black title and
-      // black description run together as one unbroken line).
-      function gapBefore(idx) {
-        if (idx === 0) return 0;
-        return fillColorFor(SEGMENTS[idx]) === fillColorFor(SEGMENTS[idx - 1]) ? 0 : GAP;
-      }
-
-      // Horizontal semicircle joining the end of one column to the start
-      // of the next, both at the same y, bulging down (bottom turn) or up
-      // (top turn).
-      function turn(x1, x2, y, bulgeDown, color) {
-        var radius = Math.abs(x2 - x1) / 2;
-        var el = document.createElementNS(NS, 'path');
-        el.setAttribute('d', 'M' + x1 + ',' + y + ' A' + radius + ',' + radius + ' 0 0,' + (bulgeDown ? 0 : 1) + ' ' + x2 + ',' + y);
-        el.setAttribute('fill', 'none');
-        el.setAttribute('stroke', color || 'black');
-        el.setAttribute('stroke-width', LINE_WIDTH);
-        el.setAttribute('stroke-linecap', 'butt');
-        return el;
-      }
-
-      // Same turn as turn(), but with a squiggle in the middle of the
-      // arc (swinging in and out from its center), used when the turn is
-      // yellow so it matches the squiggles on the yellow segments.
-      function squiggleTurn(x1, x2, y, bulgeDown, color) {
-        var radius = Math.abs(x2 - x1) / 2;
-        var cx = (x1 + x2) / 2;
-        var arcLen = Math.PI * radius;
-        var waveLen = Math.min(SQUIGGLE_LENGTH, arcLen * 0.6);
-        var waveStart = (arcLen - waveLen) / 2;
-        var steps = 120;
-        var d = '';
-        for (var i = 0; i <= steps; i++) {
-          var s = (i / steps) * arcLen;
-          var u = (s - waveStart) / waveLen;
-          var r = radius;
-          if (u > 0 && u < 1) r += SQUIGGLE_AMPLITUDE * Math.sin(u * SQUIGGLE_WAVES * 2 * Math.PI);
-          var angle = Math.PI - s / radius; // x1 side is angle PI, x2 side is 0
-          var px = cx + r * Math.cos(angle) * (x2 > x1 ? 1 : -1);
-          var py = y + r * Math.sin(angle) * (bulgeDown ? 1 : -1);
-          d += (i ? ' L' : 'M') + px.toFixed(2) + ',' + py.toFixed(2);
-        }
-        var el = document.createElementNS(NS, 'path');
-        el.setAttribute('d', d);
-        el.setAttribute('fill', 'none');
-        el.setAttribute('stroke', color);
-        el.setAttribute('stroke-width', LINE_WIDTH);
-        el.setAttribute('stroke-linejoin', 'round');
-        el.setAttribute('stroke-linecap', 'butt');
-        return el;
-      }
-
-      // Vertical line from y1 to y2 with a sine-wave squiggle in the
-      // middle, used for the yellow friction segments.
-      function squiggleLine(x, y1, y2, color) {
-        var dir = y2 > y1 ? 1 : -1;
-        var len = Math.abs(y2 - y1);
-        var waveLen = Math.min(SQUIGGLE_LENGTH, len * 0.6);
-        var waveStart = y1 + dir * (len - waveLen) / 2;
-        var steps = 40;
-        var d = 'M' + x + ',' + y1 + ' L' + x + ',' + waveStart;
-        for (var i = 1; i <= steps; i++) {
-          var t = i / steps;
-          var wx = x + SQUIGGLE_AMPLITUDE * Math.sin(t * SQUIGGLE_WAVES * 2 * Math.PI);
-          d += ' L' + wx.toFixed(2) + ',' + (waveStart + dir * t * waveLen).toFixed(2);
-        }
-        d += ' L' + x + ',' + y2;
-        var el = document.createElementNS(NS, 'path');
-        el.setAttribute('d', d);
-        el.setAttribute('fill', 'none');
-        el.setAttribute('stroke', color);
-        el.setAttribute('stroke-width', LINE_WIDTH);
-        el.setAttribute('stroke-linejoin', 'round');
-        return el;
-      }
-
-      // Vertical boustrophedon: the path runs down the first column, turns
-      // along the bottom into the second column and runs up, turns along
-      // the top into the third and runs down, and so on — left to right.
-      // Each step's text sits to the right of its stretch of the line.
       function build() {
         var containerWidth = svg.clientWidth;
         if (!containerWidth) return;
 
-        var columns = Math.max(1, Math.floor((containerWidth - LINE_WIDTH) / MIN_COLUMN));
-        // Two columns read awkwardly (one down, one up), so on screens
-        // that would only fit two, fall back to a single column.
-        if (columns === 2) columns = 1;
-        var colW = Math.floor((containerWidth - LINE_WIDTH) / columns);
-        var textW = colW - COL_GAP;
-        var perColumn = Math.ceil(TOTAL / columns);
+        svg.style.margin = '';
 
-        // Split the segments into columns, each cell as tall as its own
-        // text needs.
-        var cols = [];
-        for (var c = 0; c < columns; c++) {
-          var cells = [];
-          var h = 0;
-          for (var k = 0; k < perColumn; k++) {
-            var idx = c * perColumn + k;
-            if (idx >= TOTAL) break;
-            var need = Math.ceil(requiredHeightForSegment(SEGMENTS[idx], textW));
-            cells.push({ idx: idx, h: need });
-            h += need + (k > 0 ? gapBefore(idx) : 0);
+        function maxNeededAt(segW) {
+          var m = 0;
+          for (var mn = 0; mn < SEGMENTS.length; mn++) {
+            var v = requiredHeightForSegment(SEGMENTS[mn], segW);
+            if (v > m) m = v;
           }
-          if (cells.length) cols.push({ cells: cells, height: h });
+          return m;
         }
 
-        // Every column spans the same height so the turns line up; the
-        // last cell before each turn stretches to fill any slack.
-        var colHeight = 0;
-        cols.forEach(function (col) { if (col.height > colHeight) colHeight = col.height; });
+        // Start with as many columns as fit at MIN_SQUARE within the
+        // given width, then shrink the column count (growing each
+        // square) until every segment's text actually fits.
+        function fitColumns(rowWidth) {
+          var columns = Math.max(1, Math.floor((rowWidth + GAP) / (MIN_SQUARE + GAP)));
+          var squareSize;
+          while (true) {
+            squareSize = Math.floor((rowWidth - (columns - 1) * GAP) / columns);
+            var maxNeeded = maxNeededAt(squareSize);
+            if (maxNeeded <= squareSize || columns <= 1) {
+              squareSize = Math.max(squareSize, maxNeeded);
+              break;
+            }
+            columns--;
+          }
+          // Prefer at least 2 columns down to 400px wide — but only if 2
+          // columns actually fit without forcing squares wider than
+          // their column slot.
+          if (columns < 2 && rowWidth >= 400) {
+            var trialSize = Math.floor((rowWidth - GAP) / 2);
+            var trialNeeded = maxNeededAt(trialSize);
+            if (trialNeeded <= trialSize) {
+              columns = 2;
+              squareSize = trialSize;
+            }
+          }
+          squareSize = Math.max(MIN_SQUARE, squareSize - 60);
+          return { columns: columns, squareSize: squareSize };
+        }
 
-        var radius = cols.length > 1 ? colW / 2 : 0;
-        var TOP_PAD = radius + LINE_WIDTH;
-        var BOTTOM_PAD = radius + LINE_WIDTH;
+        // Each row is only as tall as its own longest text, so rows with
+        // shorter paragraphs sit closer together and their connecting
+        // curves come out smaller.
+        function rowHeightsFor(columns, segW) {
+          var heights = [];
+          buildPath(columns).forEach(function (c) {
+            var need = Math.ceil(requiredHeightForSegment(SEGMENTS[c.n - 1], segW));
+            heights[c.row] = Math.max(heights[c.row] || 0, need);
+          });
+          return heights;
+        }
+
+        function maxOf(arr) {
+          return arr.reduce(function (m, v) { return Math.max(m, v); }, 0);
+        }
+
+        // The curve connecting one row to the next bulges outward past
+        // the grid's own left/right edge by its radius, so the columns
+        // need to fit within a narrower width that leaves room for the
+        // biggest bulge — figured out in passes since the radius depends
+        // on the row heights the fit produces.
+        var estimate = fitColumns(containerWidth);
+        var estRadius = (maxOf(rowHeightsFor(estimate.columns, estimate.squareSize)) + ROW_GAP) / 2;
+        var rowWidth = Math.max(containerWidth - 2 * (estRadius + 5), MIN_SQUARE);
+        var fit = fitColumns(rowWidth);
+        var rowHeights = rowHeightsFor(fit.columns, fit.squareSize);
+
+        var refinedRadius = (maxOf(rowHeights) + ROW_GAP) / 2;
+        var refinedWidth = Math.max(containerWidth - 2 * (refinedRadius + 5), MIN_SQUARE);
+        var refit = fitColumns(refinedWidth);
+        var refitHeights = rowHeightsFor(refit.columns, refit.squareSize);
+        // Only take the wider fit if its curves still fit in the margin.
+        if ((maxOf(refitHeights) + ROW_GAP) / 2 <= refinedRadius) {
+          rowWidth = refinedWidth;
+          fit = refit;
+          rowHeights = refitHeights;
+        }
+
+        var columns = fit.columns;
+        var squareSize = fit.squareSize;
+        var MARGIN = (containerWidth - rowWidth) / 2;
+
+        var cells = buildPath(columns);
+        var rows = rowHeights.length;
+
+        // The line runs along the top of each row with its text hanging
+        // beneath it; offset everything down so the line isn't clipped.
+        var TOP_PAD = LINE_WIDTH / 2;
+        var rowY = [];
+        var yCursor = TOP_PAD;
+        for (var r = 0; r < rows; r++) {
+          rowY[r] = yCursor;
+          yCursor += rowHeights[r] + ROW_GAP;
+        }
         var vbWidth = containerWidth;
-        var vbHeight = TOP_PAD + colHeight + BOTTOM_PAD;
+        var vbHeight = yCursor - ROW_GAP;
         svg.setAttribute('viewBox', '0 0 ' + vbWidth + ' ' + vbHeight);
         svg.setAttribute('preserveAspectRatio', 'none');
-        svg.style.margin = '';
 
         while (svg.firstChild) svg.removeChild(svg.firstChild);
 
-        var topY = TOP_PAD;
-        var bottomY = TOP_PAD + colHeight;
+        // Rounding when squareSize is computed from rowWidth can leave a
+        // few leftover pixels — center the grid in that leftover space
+        // within its margin-inset row width.
+        var gridWidth = columns * squareSize + (columns - 1) * GAP;
+        var xOffset = MARGIN + Math.max(0, (rowWidth - gridWidth) / 2);
 
-        cols.forEach(function (col, ci) {
-          var lineX = LINE_WIDTH / 2 + ci * colW;
-          var goingDown = (ci % 2 === 0);
-          var isLastCol = (ci === cols.length - 1);
+        // Thin curves connect the line at the end of one row to the line
+        // at the start of the next, bulging outside the grid so they never
+        // cross the text below each row's line.
+        for (var i = 0; i < cells.length - 1; i++) {
+          var cur = cells[i];
+          var next = cells[i + 1];
+          if (cur.row === next.row) continue;
 
-          // Turn into the next column, colored like the segment it leads into.
-          if (!isLastCol) {
-            var nextFirst = SEGMENTS[cols[ci + 1].cells[0].idx];
-            var turnFn = (nextFirst.type === 'friction') ? squiggleTurn : turn;
-            svg.appendChild(turnFn(lineX, lineX + colW, goingDown ? bottomY : topY, goingDown, fillColorFor(nextFirst)));
+          var leftToRight = (cur.row % 2 === 0);
+          var curveX = xOffset + cur.col * (squareSize + GAP) + (leftToRight ? squareSize : 0);
+          var y1 = rowY[cur.row];
+          var y2 = rowY[next.row];
+          var sweep = leftToRight ? 1 : 0;
+          var curSeg = SEGMENTS[cur.n - 1];
+          var nextSeg = SEGMENTS[next.n - 1];
+          // A curve touching a yellow friction segment at either end is
+          // yellow and wobbly too; otherwise it takes the next row's color.
+          var frictionSeg = (curSeg.type === 'friction') ? curSeg : (nextSeg.type === 'friction') ? nextSeg : null;
+          if (frictionSeg) {
+            // Offset seed so the curve doesn't copy its segment's wobble.
+            // Blend into whichever end touches a black segment.
+            var curveStart = (curSeg.type === 'friction') ? null : fillColorFor(curSeg);
+            var curveEnd = (nextSeg.type === 'friction') ? null : fillColorFor(nextSeg);
+            svg.appendChild(wobblySemicircle(curveX, y1, y2, sweep, frictionSeg.group + 100, fillColorFor(frictionSeg), curveStart, curveEnd));
+          } else {
+            svg.appendChild(semicircle(curveX, y1, y2, sweep, LINE_WIDTH, fillColorFor(nextSeg)));
+          }
+        }
+
+        cells.forEach(function (c) {
+          var seg = SEGMENTS[c.n - 1];
+          var type = seg.type;
+          var groupIdx = seg.group;
+
+          var x = xOffset + c.col * (squareSize + GAP);
+          var lineY = rowY[c.row];
+          // Text boxes are squareSize wide and as tall as their row, with
+          // the top edge just under the line.
+          var h = rowHeights[c.row];
+          var cy = lineY + LINE_WIDTH / 2 + h / 2;
+
+          // Stretch the line across the gap toward the next segment in the
+          // same row, so the path reads as one continuous line while the
+          // text columns below keep their spacing.
+          var x1 = x, x2 = x + squareSize;
+          var nextCell = cells[c.n];
+          if (nextCell && nextCell.row === c.row) {
+            if (nextCell.col > c.col) x2 += GAP; else x1 -= GAP;
+          }
+          if (type === 'friction') {
+            // Blend into black on whichever side has a black segment in
+            // the same row (a row end meets a yellow curve instead).
+            var prevCell = cells[c.n - 2];
+            var leftColor = null, rightColor = null;
+            [prevCell, nextCell].forEach(function (nb) {
+              if (!nb || nb.row !== c.row) return;
+              var nbSeg = SEGMENTS[nb.n - 1];
+              if (nbSeg.type === 'friction') return;
+              if (nb.col < c.col) leftColor = fillColorFor(nbSeg); else rightColor = fillColorFor(nbSeg);
+            });
+            svg.appendChild(wobblyLine(x1, x2, lineY, groupIdx, fillColorFor(seg), leftColor, rightColor));
+          } else {
+            var line = document.createElementNS(NS, 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y1', lineY);
+            line.setAttribute('y2', lineY);
+            line.setAttribute('stroke', fillColorFor(seg));
+            line.setAttribute('stroke-width', LINE_WIDTH);
+            svg.appendChild(line);
           }
 
-          // Walk the column in path order from its entry end.
-          var pos = goingDown ? topY : bottomY;
-          col.cells.forEach(function (cell, k) {
-            var seg = SEGMENTS[cell.idx];
-            var type = seg.type;
-            var groupIdx = seg.group;
-            var isLastCell = (k === col.cells.length - 1);
-            var span = cell.h;
-            if (isLastCell && !isLastCol) span = Math.abs((goingDown ? bottomY : topY) - pos);
+          // Caution sign in the middle of each yellow segment's line (riding
+          // the wobble), nudged up a little so its bottom point clears the
+          // text below.
+          if (type === 'friction') {
+            var midT = (x + squareSize / 2 - x1) / (x2 - x1);
+            svg.appendChild(warningSign(x + squareSize / 2, lineY + wobbleAt(groupIdx, midT) - 4));
+          }
+          if (type === 'title') svg.appendChild(numberBadge(x + squareSize / 2, lineY - 4, groupIdx));
 
-            var y1 = pos;
-            var y2 = goingDown ? pos + span : pos - span;
-            var cellTop = Math.min(y1, y2);
-            var gap = isLastCell ? 0 : gapBefore(col.cells[k + 1].idx);
-            pos = goingDown ? y2 + gap : y2 - gap;
-
-            // Stretch the line across the gap to the next segment so the
-            // path has no white breaks; the text keeps its spacing.
-            var lineEnd = goingDown ? y2 + gap : y2 - gap;
-            if (type === 'friction') {
-              svg.appendChild(squiggleLine(lineX, y1, lineEnd, fillColorFor(seg)));
-            } else {
-              var line = document.createElementNS(NS, 'line');
-              line.setAttribute('x1', lineX);
-              line.setAttribute('x2', lineX);
-              line.setAttribute('y1', y1);
-              line.setAttribute('y2', lineEnd);
-              line.setAttribute('stroke', fillColorFor(seg));
-              line.setAttribute('stroke-width', LINE_WIDTH);
-              svg.appendChild(line);
-            }
-
-            // Text box to the right of the line, top-aligned with this
-            // stretch of it, sized to the text's own required height.
-            var x = lineX + LINE_WIDTH / 2;
-            var boxH = cell.h;
-            var cy = cellTop + boxH / 2;
-
-            if (type === 'title') {
-              svg.appendChild(label(x, cy, boxH, groupIdx));
-              svg.appendChild(stepTitle(x, cy, boxH, textW, TITLES[groupIdx], DURATIONS[groupIdx]));
-            } else if (type === 'desc') {
-              svg.appendChild(textBox(x, cy, boxH, textW, BLACK_TEXT[groupIdx], TEXT_COLOR));
-            } else if (type === 'approp-title') {
-              svg.appendChild(headingBox(x, cy, boxH, textW, TITLES[groupIdx]));
-            } else if (type === 'approp-desc') {
-              svg.appendChild(textBox(x, cy, boxH, textW, BLACK_TEXT[groupIdx], TEXT_COLOR));
-            } else if (type === 'approp-item') {
-              var itemText = (seg.item + 1) + '. ' + APPROP_LIST[seg.item];
-              svg.appendChild(textBox(x, cy, boxH, textW, itemText, TEXT_COLOR));
-            } else {
-              svg.appendChild(textBox(x, cy, boxH, textW, FRICTIONS[groupIdx], 'black', true));
-            }
-          });
+          if (type === 'title') {
+            svg.appendChild(stepTitle(x, cy, h, squareSize, TITLES[groupIdx], DURATIONS[groupIdx]));
+          } else if (type === 'desc') {
+            svg.appendChild(textBox(x, cy, h, squareSize, BLACK_TEXT[groupIdx], TEXT_COLOR));
+          } else if (type === 'approp-title') {
+            svg.appendChild(headingBox(x, cy, h, squareSize, TITLES[groupIdx]));
+          } else if (type === 'approp-desc') {
+            svg.appendChild(textBox(x, cy, h, squareSize, BLACK_TEXT[groupIdx], TEXT_COLOR));
+          } else if (type === 'approp-item') {
+            var itemText = (seg.item + 1) + '. ' + APPROP_LIST[seg.item];
+            svg.appendChild(textBox(x, cy, h, squareSize, itemText, TEXT_COLOR));
+          } else {
+            svg.appendChild(textBox(x, cy, h, squareSize, FRICTIONS[groupIdx], 'black', true));
+          }
         });
       }
 

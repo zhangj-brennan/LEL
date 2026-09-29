@@ -8,7 +8,8 @@
 </head>
 <body>
   <div id="container">
-    <div class="op-intro-row">
+    <div class="figure-label">Figure 3</div>
+    <div class="op-intro-row" style="border-top: 2px solid black; padding-top: 12px;">
       <div class="op-intro">
         <h2>Meet Officer P</h2>
         <p>Officer P is a veteran police officer in a small rural town who sees the same challenges every day: overdoses, behavioral health crises, and homelessness. He knows that jail, the main tool he has at hand, will not help steer people toward sobriety or stable lives.</p>
@@ -18,11 +19,22 @@
       </div>
     </div>
 
-    <div class="figure-label">Figure 3</div>
-    <div id="title">
-      <h1>Officer P&rsquo;s Journey</h1>
+    <div class="op-appropriations" style="margin-bottom: 32px;">
+      <h2>Appropriations Process</h2>
+      <p>Before Officer P begins searching for grants, the annual appropriations process determines how much funding is available for DOJ grant programs. This process can affect when grant opportunities are announced and whether awards can be made.</p>
+      <ol class="op-approp-list">
+        <li>Agencies submit budget requests to OMB</li>
+        <li>President submits budget request to Congress</li>
+        <li>Congress holds hearings and passes appropriations, which the President signs into law</li>
+        <li>OMB apportions funds to agencies</li>
+        <li>Agencies release NOFOs based on available or anticipated funding</li>
+      </ol>
     </div>
-    <p class="deck">This hypothetical scenario draws on real-world experiences shared by law enforcement leaders, along with information from resources and experts on DOJ funding.</p>
+
+    <div class="op-journey" style="margin-bottom: 28px;">
+      <h2>Officer P&rsquo;s Journey</h2>
+      <p class="deck">This hypothetical scenario draws on real-world experiences shared by law enforcement leaders, along with information from resources and experts on DOJ funding.</p>
+    </div>
 
     <svg class="pathc-spine" aria-hidden="true"></svg>
 
@@ -64,11 +76,14 @@
       var GAP = 2;             // gap between squares in the same row
       var ROW_GAP = 40;        // gap between rows
       var DARK_GREY = '#4d4d4d'; // background for the black description squares (title squares stay black)
-      var NUMBER_FONT_SIZE = 28; // step number badge, e.g. "1"
+      var NUMBER_FONT_SIZE = 15; // step number inside its circle badge on the line
+      var BADGE_SIZE = 30;       // diameter of the black number circle (matches WARNING_SIZE)
       var TITLE_FONT_SIZE = 16;  // step title text, e.g. "Learn About the Funding Process"
       var BODY_FONT_SIZE = 12;   // minimum size for description/friction/list body text
       var DURATION_FONT_SIZE = 12; // minimum size for the time-marker labels
       var LINE_WIDTH = 10;       // stroke width of the path line and its curves
+      var WARNING_SIZE = 30;     // height/width of the caution diamond on yellow segments
+      var PATH_COLOR = 'black'; // path line, curves, and step numbers
       var TEXT_COLOR = 'black';  // text now sits on the page background, under the line
 
       var TITLES = [
@@ -141,18 +156,11 @@
         'He does not know whether future appropriations will fund another grant cycle, so he encourages community members to ask their members of Congress to support continued funding.'
       ];
 
-      // Explicit list of squares in path order. Group 0 (Appropriations
-      // Process) is now a grey heading square, a grey paragraph square,
-      // and each of the 5 list items in its own grey square. Groups 1-9
-      // are each a separate number/title square and description square,
-      // followed by their friction square.
-      var SEGMENTS = [
-        { type: 'approp-title', group: 0 },
-        { type: 'approp-desc', group: 0 }
-      ];
-      for (var li = 0; li < 5; li++) {
-        SEGMENTS.push({ type: 'approp-item', group: 0, item: li });
-      }
+      // Explicit list of segments in path order. The Appropriations
+      // Process (group 0) is an HTML list above the graphic, so the path
+      // starts at step 1. Groups 1-9 are each a number/title segment and
+      // a description segment, followed by their friction segment.
+      var SEGMENTS = [];
       for (var g = 1; g <= 9; g++) {
         SEGMENTS.push({ type: 'title', group: g });
         SEGMENTS.push({ type: 'desc', group: g });
@@ -188,22 +196,67 @@
         return el;
       }
 
-      function label(leftX, centerY, strokeWidth, n) {
-        var pad = 10;
+      // Yellow caution diamond with a black outline and "!" centered at
+      // (x, cy), marking each yellow friction segment on the line.
+      function warningSign(x, cy) {
+        var h = WARNING_SIZE / 2;
+        var g = document.createElementNS(NS, 'g');
+
+        var diamond = document.createElementNS(NS, 'path');
+        diamond.setAttribute('d', 'M' + x + ',' + (cy - h) + ' L' + (x + h) + ',' + cy + ' L' + x + ',' + (cy + h) + ' L' + (x - h) + ',' + cy + ' Z');
+        diamond.setAttribute('fill', '#ffcf01');
+        diamond.setAttribute('stroke', 'black');
+        diamond.setAttribute('stroke-width', 3);
+        diamond.setAttribute('stroke-linejoin', 'round');
+        g.appendChild(diamond);
+
+        var bar = document.createElementNS(NS, 'rect');
+        bar.setAttribute('x', x - 1.5);
+        bar.setAttribute('y', cy - h * 0.48);
+        bar.setAttribute('width', 3);
+        bar.setAttribute('height', h * 0.62);
+        bar.setAttribute('rx', 1.2);
+        bar.setAttribute('fill', 'black');
+        g.appendChild(bar);
+
+        var dot = document.createElementNS(NS, 'circle');
+        dot.setAttribute('cx', x);
+        dot.setAttribute('cy', cy + h * 0.38);
+        dot.setAttribute('r', 1.9);
+        dot.setAttribute('fill', 'black');
+        g.appendChild(dot);
+
+        return g;
+      }
+
+      // Black circle with the white step number, centered at (x, cy) on
+      // the line, the same way warningSign() marks the friction segments.
+      function numberBadge(x, cy, n) {
+        var g = document.createElementNS(NS, 'g');
+
+        var circle = document.createElementNS(NS, 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', cy);
+        circle.setAttribute('r', BADGE_SIZE / 2);
+        circle.setAttribute('fill', 'black');
+        g.appendChild(circle);
+
         var el = document.createElementNS(NS, 'text');
-        el.setAttribute('x', leftX + pad);
-        el.setAttribute('y', centerY - strokeWidth / 2 + pad);
-        el.setAttribute('fill', TEXT_COLOR);
-        el.setAttribute('text-anchor', 'start');
-        el.setAttribute('dominant-baseline', 'hanging');
+        el.setAttribute('x', x);
+        el.setAttribute('y', cy);
+        el.setAttribute('fill', 'white');
+        el.setAttribute('text-anchor', 'middle');
+        el.setAttribute('dominant-baseline', 'central');
         el.setAttribute('font-family', 'BentonStrong, sans-serif');
         el.setAttribute('font-size', NUMBER_FONT_SIZE);
         el.textContent = n;
-        return el;
+        g.appendChild(el);
+
+        return g;
       }
 
-      // Number/title square used for steps 1-9 — the number badge (drawn
-      // separately by label()) plus the title and duration, no
+      // Number/title square used for steps 1-9 — the title and duration
+      // (the number sits on the line via numberBadge()), no
       // description text (that lives in its own square via textBox()).
       function stepTitle(leftX, centerY, strokeWidth, segW, text, duration) {
         var pad = 10;
@@ -233,8 +286,7 @@
         el.setAttribute('font-family', 'Benton, sans-serif');
         el.setAttribute('font-size', fontSize);
 
-        var numberSpace = NUMBER_FONT_SIZE * 1.3;
-        var startY = centerY - strokeWidth / 2 + pad + numberSpace + fontSize - 7;
+        var startY = centerY - strokeWidth / 2 + pad + fontSize;
         var lineHeight = fontSize * 1.3;
         lines.forEach(function (lineText, i) {
           var tspan = document.createElementNS(NS, 'tspan');
@@ -388,8 +440,7 @@
         var maxWidth = Math.max(40, segW - pad * 2);
         if (type === 'title') {
           var titleLines = wrapLineCount(TITLES[groupIdx], TITLE_FONT_SIZE, maxWidth, 0.55);
-          var numberSpace = NUMBER_FONT_SIZE * 1.3;
-          var titleBlock = numberSpace + titleLines * (TITLE_FONT_SIZE * 1.3);
+          var titleBlock = titleLines * (TITLE_FONT_SIZE * 1.3);
           var durationSpace = DURATIONS[groupIdx] ? (DURATION_FONT_SIZE + 6) : 0;
           return pad + titleBlock + durationSpace + pad;
         }
@@ -432,7 +483,7 @@
       function fillColorFor(seg) {
         var type = seg.type;
         var isGrey = (type === 'approp-title' || type === 'approp-desc' || type === 'approp-item');
-        return (type === 'friction') ? '#ffcf01' : isGrey ? DARK_GREY : 'black';
+        return (type === 'friction') ? '#ffcf01' : isGrey ? DARK_GREY : PATH_COLOR;
       }
 
       function build() {
@@ -480,32 +531,62 @@
           return { columns: columns, squareSize: squareSize };
         }
 
+        // Each row is only as tall as its own longest text, so rows with
+        // shorter paragraphs sit closer together and their connecting
+        // curves come out smaller.
+        function rowHeightsFor(columns, segW) {
+          var heights = [];
+          buildPath(columns).forEach(function (c) {
+            var need = Math.ceil(requiredHeightForSegment(SEGMENTS[c.n - 1], segW));
+            heights[c.row] = Math.max(heights[c.row] || 0, need);
+          });
+          return heights;
+        }
+
+        function maxOf(arr) {
+          return arr.reduce(function (m, v) { return Math.max(m, v); }, 0);
+        }
+
         // The curve connecting one row to the next bulges outward past
         // the grid's own left/right edge by its radius, so the columns
-        // need to fit within a narrower width that leaves room for that
-        // bulge — figured out here in two passes since the radius itself
-        // depends on the square size the fit produces.
+        // need to fit within a narrower width that leaves room for the
+        // biggest bulge — figured out in passes since the radius depends
+        // on the row heights the fit produces.
         var estimate = fitColumns(containerWidth);
-        var estRadius = (estimate.squareSize + ROW_GAP) / 2;
-        var estMargin = estRadius + 5;
-        var rowWidth = Math.max(containerWidth - 2 * estMargin, MIN_SQUARE);
-
+        var estRadius = (maxOf(rowHeightsFor(estimate.columns, estimate.squareSize)) + ROW_GAP) / 2;
+        var rowWidth = Math.max(containerWidth - 2 * (estRadius + 5), MIN_SQUARE);
         var fit = fitColumns(rowWidth);
+        var rowHeights = rowHeightsFor(fit.columns, fit.squareSize);
+
+        var refinedRadius = (maxOf(rowHeights) + ROW_GAP) / 2;
+        var refinedWidth = Math.max(containerWidth - 2 * (refinedRadius + 5), MIN_SQUARE);
+        var refit = fitColumns(refinedWidth);
+        var refitHeights = rowHeightsFor(refit.columns, refit.squareSize);
+        // Only take the wider fit if its curves still fit in the margin.
+        if ((maxOf(refitHeights) + ROW_GAP) / 2 <= refinedRadius) {
+          rowWidth = refinedWidth;
+          fit = refit;
+          rowHeights = refitHeights;
+        }
+
         var columns = fit.columns;
         var squareSize = fit.squareSize;
-        var radius = (squareSize + ROW_GAP) / 2;
-        var MARGIN = radius + 5;
+        var MARGIN = (containerWidth - rowWidth) / 2;
 
         var cells = buildPath(columns);
-        var maxRow = 0;
-        cells.forEach(function (c) { if (c.row > maxRow) maxRow = c.row; });
-        var rows = maxRow + 1;
+        var rows = rowHeights.length;
 
         // The line runs along the top of each row with its text hanging
         // beneath it; offset everything down so the line isn't clipped.
         var TOP_PAD = LINE_WIDTH / 2;
+        var rowY = [];
+        var yCursor = TOP_PAD;
+        for (var r = 0; r < rows; r++) {
+          rowY[r] = yCursor;
+          yCursor += rowHeights[r] + ROW_GAP;
+        }
         var vbWidth = containerWidth;
-        var vbHeight = TOP_PAD + rows * squareSize + (rows - 1) * ROW_GAP;
+        var vbHeight = yCursor - ROW_GAP;
         svg.setAttribute('viewBox', '0 0 ' + vbWidth + ' ' + vbHeight);
         svg.setAttribute('preserveAspectRatio', 'none');
 
@@ -527,8 +608,8 @@
 
           var leftToRight = (cur.row % 2 === 0);
           var curveX = xOffset + cur.col * (squareSize + GAP) + (leftToRight ? squareSize : 0);
-          var y1 = TOP_PAD + cur.row * (squareSize + ROW_GAP);
-          var y2 = TOP_PAD + next.row * (squareSize + ROW_GAP);
+          var y1 = rowY[cur.row];
+          var y2 = rowY[next.row];
           var sweep = leftToRight ? 1 : 0;
           var nextSeg = SEGMENTS[next.n - 1];
           svg.appendChild(semicircle(curveX, y1, y2, sweep, LINE_WIDTH, fillColorFor(nextSeg)));
@@ -540,34 +621,47 @@
           var groupIdx = seg.group;
 
           var x = xOffset + c.col * (squareSize + GAP);
-          var lineY = TOP_PAD + c.row * (squareSize + ROW_GAP);
-          // Text boxes are laid out as a squareSize box whose top edge
-          // sits just under the line.
-          var cy = lineY + LINE_WIDTH / 2 + squareSize / 2;
+          var lineY = rowY[c.row];
+          // Text boxes are squareSize wide and as tall as their row, with
+          // the top edge just under the line.
+          var h = rowHeights[c.row];
+          var cy = lineY + LINE_WIDTH / 2 + h / 2;
 
+          // Stretch the line across the gap toward the next segment in the
+          // same row, so the path reads as one continuous line while the
+          // text columns below keep their spacing.
+          var x1 = x, x2 = x + squareSize;
+          var nextCell = cells[c.n];
+          if (nextCell && nextCell.row === c.row) {
+            if (nextCell.col > c.col) x2 += GAP; else x1 -= GAP;
+          }
           var line = document.createElementNS(NS, 'line');
-          line.setAttribute('x1', x);
-          line.setAttribute('x2', x + squareSize);
+          line.setAttribute('x1', x1);
+          line.setAttribute('x2', x2);
           line.setAttribute('y1', lineY);
           line.setAttribute('y2', lineY);
           line.setAttribute('stroke', fillColorFor(seg));
           line.setAttribute('stroke-width', LINE_WIDTH);
           svg.appendChild(line);
 
+          // Caution sign in the middle of each yellow segment's line,
+          // nudged up a little so its bottom point clears the text below.
+          if (type === 'friction') svg.appendChild(warningSign(x + squareSize / 2, lineY - 4));
+          if (type === 'title') svg.appendChild(numberBadge(x + squareSize / 2, lineY - 4, groupIdx));
+
           if (type === 'title') {
-            svg.appendChild(label(x, cy, squareSize, groupIdx));
-            svg.appendChild(stepTitle(x, cy, squareSize, squareSize, TITLES[groupIdx], DURATIONS[groupIdx]));
+            svg.appendChild(stepTitle(x, cy, h, squareSize, TITLES[groupIdx], DURATIONS[groupIdx]));
           } else if (type === 'desc') {
-            svg.appendChild(textBox(x, cy, squareSize, squareSize, BLACK_TEXT[groupIdx], TEXT_COLOR));
+            svg.appendChild(textBox(x, cy, h, squareSize, BLACK_TEXT[groupIdx], TEXT_COLOR));
           } else if (type === 'approp-title') {
-            svg.appendChild(headingBox(x, cy, squareSize, squareSize, TITLES[groupIdx]));
+            svg.appendChild(headingBox(x, cy, h, squareSize, TITLES[groupIdx]));
           } else if (type === 'approp-desc') {
-            svg.appendChild(textBox(x, cy, squareSize, squareSize, BLACK_TEXT[groupIdx], TEXT_COLOR));
+            svg.appendChild(textBox(x, cy, h, squareSize, BLACK_TEXT[groupIdx], TEXT_COLOR));
           } else if (type === 'approp-item') {
             var itemText = (seg.item + 1) + '. ' + APPROP_LIST[seg.item];
-            svg.appendChild(textBox(x, cy, squareSize, squareSize, itemText, TEXT_COLOR));
+            svg.appendChild(textBox(x, cy, h, squareSize, itemText, TEXT_COLOR));
           } else {
-            svg.appendChild(textBox(x, cy, squareSize, squareSize, FRICTIONS[groupIdx], 'black', true));
+            svg.appendChild(textBox(x, cy, h, squareSize, FRICTIONS[groupIdx], 'black', true));
           }
         });
       }

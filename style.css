@@ -135,10 +135,14 @@ h1.wrap-title {
   border-bottom: 1px solid black;
 }
 .index-list a {
+  display: block;
   font-family: "BentonMedium";
   font-size: 16px;
   color: black;
   text-decoration: none;
+}
+.index-list a + a {
+  margin-top: 8px;
 }
 .index-list a:hover {
   text-decoration: underline;
@@ -665,6 +669,7 @@ h1.wrap-title {
 }
 .op-intro h2,
 .op-appropriations h2,
+.op-journey h2,
 .op-challenges h2,
 .op-changes h2 {
   margin: 0 0 8px;

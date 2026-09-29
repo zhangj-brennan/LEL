@@ -33,7 +33,7 @@ body::before {
   z-index: 1000;
   margin: -24px -16px 24px;
   padding: 8px 16px;
-  background: #d7261e;
+  background: #000000;
   color: #ffffff;
   font-family: "BentonStrong", sans-serif;
   font-size: 13px;
@@ -141,11 +141,20 @@ h1.wrap-title {
   color: black;
   text-decoration: none;
 }
+.index-list a[href$=".pdf"] {
+  color: #0e4d8c;
+}
 .index-list a + a {
   margin-top: 8px;
 }
 .index-list a:hover {
   text-decoration: underline;
+}
+.index-list .index-date {
+  margin-left: 8px;
+  font-family: "Benton";
+  font-size: 13px;
+  color: #0e4d8c;
 }
 .index-list .index-note {
   display: block;

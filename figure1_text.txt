@@ -1,0 +1,52 @@
+Figure 1
+Federal Funding and DOJ Grantmaking Life Cycle
+Typical competitive DOJ grant path from appropriations to closeout.
+Appropriation
+1
+Congress Appropriates Funds
+Congress provides budget authority for authorized grant programs through appropriations laws, which may set funding levels, purposes, and requirements.
+Apportionment
+2
+OMB Apportions Funds to DOJ
+OMB apportions DOJ’s budgetary resources, limiting how much may be obligated by time period, activity, project, or other category.
+Allotment
+3
+DOJ Allots Apportioned Funds
+DOJ allots apportioned funds among grant programs and offices, establishing available funding and delegating authority to incur obligations.
+4
+DOJ Develops Grant Funding Opportunities
+DOJ grantmaking components use available funding, statutory requirements, appropriations directives, and agency priorities to develop grant funding opportunities. The DOJ Program Plan has historically forecast upcoming opportunities.*
+5
+DOJ Publishes Notices of Funding Opportunity (NOFOs)
+DOJ publishes NOFOs describing program purpose, eligibility, application requirements, evaluation criteria, deadlines, and award information.
+6
+Applicants Complete Required Registrations
+Applicants maintain an active SAM.gov entity registration, UEI,¹ and required system access before applying.
+7
+Applicants Submit the Two-Part DOJ Application
+Applicants first submit SF-424 and other required forms in Grants.gov, then complete the full application in JustGrants.²
+8
+DOJ Reviews Applications
+DOJ reviews applications for basic requirements and completeness. Programmatic and financial reviews follow, and competitive discretionary applications also undergo peer review.³
+Obligation
+9
+DOJ Makes Award Decisions and Obligates Funds
+DOJ selects recipients, issues awards, and records obligations of federal funds.
+10
+Recipient Accepts the Award and Completes Award Setup
+The recipient reviews the award and conditions, accepts or declines it in JustGrants, and completes any required ASAP enrollment or payment-account setup.
+Disbursement
+11
+Recipient Implements the Project, Draws Funds, and Reports
+The recipient carries out approved activities, requests payments through ASAP, tracks spending and performance, and submits required reports.
+12
+Recipient Completes Closeout Requirements
+After the award ends, the recipient submits final financial, performance, and other required reports, meets award conditions, and resolves closeout requirements. DOJ reviews and closes the award.
+DOJ monitoring and oversight continue throughout the award period
+Scope: This figure illustrates a simplified version of a typical competitive DOJ discretionary grant. Formula grants and other assistance mechanisms may follow different processes. For more detail on the federal budget process, see CRS, Introduction to the Federal Budget Process.
+Current status: On June 30, 2026, DOJ announced a plan to consolidate OJP, the COPS Office, and OVW into a single grantmaking component named the Bureau of Justice Grants, although the plan has not been finalized and will likely require congressional approval.
+Sources: GAO Federal Budget Glossary; DOJ Program Plan; DOJ JustGrants Resources; DOJ Tribal Justice and Safety.
+*Note: As of August 2026, DOJ had not published a Program Plan for nearly two years.
+¹ UEI (Unique Entity Identifier): A 12-character alphanumeric code assigned by SAM.gov to uniquely identify an entity in federal award systems.
+² JustGrants (Justice Grants System): DOJ’s grant application and award management system for OJP, OVW, and the COPS Office.
+³ DOJ has announced plans to end its use of outside peer reviewers for competitive grants this fall, with OJP and OVW staff conducting internal peer reviews instead.

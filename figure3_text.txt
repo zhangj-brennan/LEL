@@ -1,0 +1,78 @@
+Figure 3
+Officer P’s Journey
+This hypothetical scenario draws on real-world experiences shared by law enforcement leaders, along with information from resources and experts on DOJ funding.
+Meet Officer P
+Officer P is a veteran police officer in a small rural town who sees the same challenges every day: overdoses, behavioral health crises, and homelessness. He knows that jail, the main tool he has at hand, will not help steer people toward sobriety or stable lives.
+Through research, he learns about co-responder models, which pair officers with mental health professionals on behavioral health calls. The approach has shown promising results elsewhere, and he hopes it can help his community.
+Officer P gets buy-in from his police chief, the mayor’s office, the local clinic, and the community. Some remain skeptical, but they agree that the status quo is not working. The city council approves the pilot program contingent on receiving external funding, such as a grant.
+Since the city and state do not have room in their budgets to fund the program, Officer P speaks with his district’s representative in Congress about possible options. His representative points him to JMHCP¹ and other DOJ grant programs that may support initiatives like his.
+Appropriations Process
+Before Officer P begins searching for grants, the annual appropriations process determines how much funding is available for DOJ grant programs. This process can affect when grant opportunities are announced and whether awards can be made.
+	1	Agencies submit budget requests to OMB
+	2	President submits budget request to Congress
+	3	Congress holds hearings and passes appropriations, which the president signs into law
+	4	OMB apportions funds to agencies
+	5	Agencies release NOFOs based on available or anticipated funding
+1
+Learn About the Funding Process
+1–3 months+
+Officer P searches DOJ websites to learn when funding will open and where application information will be posted. He calls colleagues in other cities for guidance, but it takes weeks to find the information he needs.
+DOJ has not published a public program plan since 2024, making it harder to research upcoming opportunities.
+2
+Read the NOFOs²
+1–3 weeks+
+He reviews the NOFOs; works through eligibility rules, deadlines, required documents, and unfamiliar terms; and tries to determine whether his project fits.
+The process is more complicated than he expected, and he begins questioning whether he has the capacity to do this on his own.
+3
+Set Up SAM.gov and Get a UEI
+2–6 weeks
+Before he can apply, he has to create a SAM.gov account and register his agency to receive the required UEI.³
+He runs into account issues and has to contact technical support. It takes a week before someone gets back to him.
+4
+Complete the SF-424
+1–2 weeks
+He completes the SF-424, the standard federal application form, along with any other required forms, and submits them through Grants.gov.
+One field is completed incorrectly, so the application must be resubmitted.
+5
+Complete the JustGrants Application
+2–8 weeks+
+He uploads required documents, enters budget information, and completes the remaining application requirements in JustGrants.
+The portal freezes and some of his work is lost, so he has to redo it after his shift.
+6
+Wait for Award Decision
+Varies, often months
+The application is submitted, but the city cannot move forward with hiring, contracts, or implementation until a decision is made and funding has been awarded.
+Weeks pass, and he cannot get in touch with anyone for an update or a timeline.
+7
+Receive the Award
+Varies
+The application is selected for funding! He accepts the award, completes the required setup, and prepares to begin implementation.
+The delayed award leaves less time to hire staff, launch the program, and show results.
+8
+Implement & Manage the Grant & Program
+He hires or contracts program staff, begins implementing the program, and starts collecting data.
+	•	Quarterly Financial Reports
+	•	Semiannual Performance Reports
+	•	Final Financial & Performance Reports
+Who will manage the implementation, coordination, data collection, and reporting? He still has to work his full-time job!
+9
+Sustain the Program
+2–3 years & beyond
+The program is making a big difference in his community and is strongly supported by residents. Officer P now has to plan how to keep it going. If another grant cycle is offered, he repeats the application process. If not, he has to search for another funding source.
+He does not know whether future appropriations will fund another grant cycle, so he encourages community members to ask their members of Congress to support continued funding.
+Other Challenges
+	•	Officer P completes much of this work during personal time off the clock and between his regular job responsibilities. His department assigns an admin to help him part time, but much of the workload still falls on him because the grant does not cover dedicated grant management staff.
+	•	He sees funding being terminated mid-grant for programs like his and worries that his program could lose funding after it begins. State and local agencies do not have replacement funds, and his department lacks the bandwidth to pursue private grants or donations.
+	•	Because the grant lasts only three years, Officer P must seek continued funding while still launching and managing the program. He may not yet have enough data to demonstrate results, and reapplying takes time away from implementation.
+Changes That Could Help Applicants Like Officer P
+	•	Publish a public annual DOJ program plan before each fiscal year begins
+	•	Post NOFOs on a predictable timeline
+	•	Standardize applications across DOJ grantmaking offices
+	•	Keep application windows open at least 90 days
+	•	Provide funding for grant administration staff support
+	•	Create five-year award periods for selected projects
+	•	Limit midstream grant cancellations after awards are approved
+¹ JMHCP: The U.S. Department of Justice’s Justice and Mental Health Collaboration Program, which supports partnerships between criminal justice and mental health agencies.
+² NOFO (Notice of Funding Opportunity): The official announcement that describes a federal grant program, including eligibility, application requirements, deadlines, and available funding.
+³ UEI (Unique Entity Identifier): A 12-character alphanumeric code assigned by SAM.gov to uniquely identify an entity in federal award systems.
+*Timelines are illustrative estimates. Actual timing varies by program and year, and some steps may occur at the same time.

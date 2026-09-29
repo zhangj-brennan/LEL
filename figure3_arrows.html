@@ -6,6 +6,13 @@
 <title>Officer P&rsquo;s Journey</title>
 <link rel="stylesheet" href="style.css">
 <style>
+  /* Section headings in title case rather than all caps. */
+  .op-intro h2,
+  .op-appropriations h2,
+  .op-challenges h2,
+  .op-changes h2 {
+    text-transform: none;
+  }
   /* No rule between steps; instead the step numbers sit in a left
      gutter, joined by a line from each number down to the next. */
   .op-timeline-arrows .op-step {
@@ -36,7 +43,7 @@
     color: black;
   }
   /* The last step's line runs down from its number and ends at its
-     yellow note's warning diamond; the script below measures where. */
+     red note's warning diamond; the script below measures where. */
   .op-timeline-arrows .op-step:last-child::before {
     content: "";
     position: absolute;
@@ -46,11 +53,14 @@
     width: 8px;
     background: black;
   }
-  /* Yellow warning diamond with a "!" on the path, level with each
-     yellow friction note. The note starts 36px in from the step's left
+  /* Red warning diamond with a "!" on the path, level with each
+     red friction note. The note starts 36px in from the step's left
      edge; the path's center is 13px in, so the 34px diamond sits at
      13 - 17 - 36. */
   .op-timeline-arrows .op-friction {
+    background: #ed2027;
+    color: white;
+    font-family: "BentonStrong";
     position: relative;
   }
   .op-timeline-arrows .op-friction::before {
@@ -61,7 +71,7 @@
     width: 34px;
     height: 34px;
     transform: translateY(-50%);
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Cpath d='M17 2.5 L31.5 17 L17 31.5 L2.5 17 Z' fill='%23ffcf01' stroke='black' stroke-width='3' stroke-linejoin='round'/%3E%3Crect x='15.4' y='9' width='3.2' height='11' rx='1.2' fill='black'/%3E%3Ccircle cx='17' cy='24' r='2' fill='black'/%3E%3C/svg%3E") no-repeat center / contain;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Cpath d='M17 2.5 L31.5 17 L17 31.5 L2.5 17 Z' fill='%23ed2027'/%3E%3Crect x='15.4' y='9' width='3.2' height='11' rx='1.2' fill='white'/%3E%3Ccircle cx='17' cy='24' r='2' fill='white'/%3E%3C/svg%3E") no-repeat center / contain;
     z-index: 1;
   }
 </style>
@@ -78,7 +88,7 @@
       <div class="op-intro">
         <h2>Meet Officer P</h2>
         <p>Officer P is a veteran police officer in a small rural town who sees the same challenges every day: overdoses, behavioral health crises, and homelessness. He knows that jail, the main tool he has at hand, will not help steer people toward sobriety or stable lives.</p>
-        <p>Through research, he learns about co-responder models, which pair officers with mental health professionals on behavioral health calls. The approach has shown promising results elsewhere, and he hopes it could help his community.</p>
+        <p>Through research, he learns about co-responder models, which pair officers with mental health professionals on behavioral health calls. The approach has shown promising results elsewhere, and he hopes it can help his community.</p>
         <p>Officer P gets buy-in from his police chief, the mayor&rsquo;s office, the local clinic, and the community. Some remain skeptical, but they agree that the status quo is not working. The city council approves the pilot program contingent on receiving external funding, such as a grant.</p>
         <p>Since the city and state do not have room in their budgets to fund the program, Officer P speaks with his district&rsquo;s representative in Congress about possible options. His representative points him to JMHCP&sup1; and other DOJ grant programs that may support initiatives like his.</p>
       </div>
@@ -89,7 +99,7 @@
         <ol class="op-approp-list">
           <li>Agencies submit budget requests to OMB</li>
           <li>President submits budget request to Congress</li>
-          <li>Congress holds hearings and passes appropriations, which the President signs into law</li>
+          <li>Congress holds hearings and passes appropriations, which the president signs into law</li>
           <li>OMB apportions funds to agencies</li>
           <li>Agencies release NOFOs based on available or anticipated funding</li>
         </ol>
@@ -117,7 +127,7 @@
             <span class="op-duration">1&ndash;3 weeks+</span>
           </div>
         </div>
-        <p>He reviews the NOFOs, works through eligibility rules, deadlines, required documents, and unfamiliar terms, and tries to determine whether his project fits.</p>
+        <p>He reviews the NOFOs; works through eligibility rules, deadlines, required documents, and unfamiliar terms; and tries to determine whether his project fits.</p>
         <p class="op-friction">The process is more complicated than he expected, and he begins questioning whether he has the capacity to do this on his own.</p>
       </div>
 
@@ -125,11 +135,11 @@
         <div class="op-step-header">
           <div class="op-step-number">3</div>
           <div>
-            <h3>Set Up SAM.gov and Get a UEI&sup3;</h3>
+            <h3>Set Up SAM.gov and Get a UEI</h3>
             <span class="op-duration">2&ndash;6 weeks</span>
           </div>
         </div>
-        <p>Before he can apply, he has to create a SAM.gov account and register his agency to receive the required UEI.</p>
+        <p>Before he can apply, he has to create a SAM.gov account and register his agency to receive the required UEI.&sup3;</p>
         <p class="op-friction">He runs into account issues and has to contact technical support. It takes a week before someone gets back to him.</p>
       </div>
 
@@ -191,7 +201,7 @@
         <p>He hires or contracts program staff, begins implementing the program, and starts collecting data.</p>
         <ul class="op-reports">
           <li>Quarterly Financial Reports</li>
-          <li>Semi-Annual Performance Reports</li>
+          <li>Semiannual Performance Reports</li>
           <li>Final Financial &amp; Performance Reports</li>
         </ul>
         <p class="op-friction">Who will manage the implementation, coordination, data collection, and reporting? He still has to work his full-time job!</p>
@@ -216,7 +226,7 @@
         <ul>
           <li>Officer P completes much of this work during personal time off the clock and between his regular job responsibilities. His department assigns an admin to help him part time, but much of the workload still falls on him because the grant does not cover dedicated grant management staff.</li>
           <li>He sees funding being terminated mid-grant for programs like his and worries that his program could lose funding after it begins. State and local agencies do not have replacement funds, and his department lacks the bandwidth to pursue private grants or donations.</li>
-          <li>Because the grant lasts only 3 years, Officer P must seek continued funding while still launching and managing the program. He may not yet have enough data to demonstrate results, and reapplying takes time away from implementation.</li>
+          <li>Because the grant lasts only three years, Officer P must seek continued funding while still launching and managing the program. He may not yet have enough data to demonstrate results, and reapplying takes time away from implementation.</li>
         </ul>
       </div>
 
@@ -242,7 +252,7 @@
     </div>
   </div>
   <script>
-    // Stop the last step's line at the center of its yellow note, where
+    // Stop the last step's line at the center of its red note, where
     // the warning diamond sits, however many lines the note wraps to.
     (function () {
       var step = document.querySelector('.op-timeline-arrows .op-step:last-child');

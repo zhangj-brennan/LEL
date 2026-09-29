@@ -37,7 +37,7 @@
     top: 36px;
     bottom: -14px;
     width: 8px;
-    background: black;
+    background: #0e4d8c;
   }
   /* Duration sits on the title line, in title case, to save height. */
   .op-timeline-arrows .op-step-header {
@@ -49,7 +49,7 @@
     align-items: baseline;
     column-gap: 8px;
   }
-  /* Step title in a black rounded tag that grows out of the number
+  /* Step title in a blue rounded tag that grows out of the number
      circle: the tag starts under the circle (-36px) and matches its
      26px height. */
   .op-timeline-arrows .op-step-header h3 {
@@ -57,10 +57,11 @@
     padding: 0 14px 0 36px;
     line-height: 26px;
     border-radius: 13px;
-    background: black;
+    background: #0e4d8c;
     color: white;
   }
   .op-timeline-arrows .op-step-number {
+    background: #0e4d8c;
     z-index: 1;
   }
   .op-timeline-arrows .op-duration {
@@ -72,7 +73,7 @@
     padding: 1px 5px;
   }
   /* The last step's line runs down from its number and ends at its
-     red note's warning diamond; the script below measures where. */
+     yellow note's warning diamond; the script below measures where. */
   .op-timeline-arrows .op-step:last-child::before {
     content: "";
     position: absolute;
@@ -80,9 +81,9 @@
     top: 36px;
     bottom: var(--line-end, 30px);
     width: 8px;
-    background: black;
+    background: #0e4d8c;
   }
-  /* Red note as a rounded tag that grows out of a red "!" circle on
+  /* Yellow note as a rounded tag that grows out of a yellow "!" circle on
      the path, mirroring the step-title tags. The note starts under the
      circle (-36px) and the 26px circle is centered on the path. */
   .op-timeline-arrows .op-friction {
@@ -92,8 +93,8 @@
     box-sizing: border-box;
     max-width: 736px;
     border-radius: 13px;
-    background: #ed2027;
-    color: white;
+    background: #ffcf01;
+    color: black;
     font-family: "BentonStrong";
     position: relative;
   }
@@ -105,7 +106,7 @@
     width: 26px;
     height: 26px;
     transform: translateY(-50%);
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Ccircle cx='13' cy='13' r='13' fill='%23ed2027'/%3E%3Crect x='11.6' y='6' width='2.8' height='9.5' rx='1.2' fill='white'/%3E%3Ccircle cx='13' cy='19.3' r='1.8' fill='white'/%3E%3C/svg%3E") no-repeat center / contain;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Ccircle cx='13' cy='13' r='13' fill='%23ffcf01'/%3E%3Crect x='11.6' y='6' width='2.8' height='9.5' rx='1.2' fill='black'/%3E%3Ccircle cx='13' cy='19.3' r='1.8' fill='black'/%3E%3C/svg%3E") no-repeat center / contain;
     z-index: 1;
   }
 </style>
@@ -286,7 +287,7 @@
     </div>
   </div>
   <script>
-    // Stop the last step's line at the center of its red note, where
+    // Stop the last step's line at the center of its yellow note, where
     // the warning diamond sits, however many lines the note wraps to.
     (function () {
       var step = document.querySelector('.op-timeline-arrows .op-step:last-child');

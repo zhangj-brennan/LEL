@@ -49,20 +49,6 @@
     align-items: baseline;
     column-gap: 8px;
   }
-  /* Step title in a black rounded tag that grows out of the number
-     circle: the tag starts under the circle (-36px) and matches its
-     26px height. */
-  .op-timeline-arrows .op-step-header h3 {
-    margin-left: -36px;
-    padding: 0 14px 0 36px;
-    line-height: 26px;
-    border-radius: 13px;
-    background: black;
-    color: white;
-  }
-  .op-timeline-arrows .op-step-number {
-    z-index: 1;
-  }
   .op-timeline-arrows .op-duration {
     color: black;
     margin-top: 0;
@@ -82,16 +68,11 @@
     width: 8px;
     background: black;
   }
-  /* Red note as a rounded tag that grows out of a red "!" circle on
-     the path, mirroring the step-title tags. The note starts under the
-     circle (-36px) and the 26px circle is centered on the path. */
+  /* Red warning diamond with a "!" on the path, level with each
+     red friction note. The note starts 36px in from the step's left
+     edge; the path's center is 13px in, so the 34px diamond sits at
+     13 - 17 - 36. */
   .op-timeline-arrows .op-friction {
-    margin-left: -36px;
-    padding: 5px 14px 5px 36px;
-    min-height: 26px;
-    box-sizing: border-box;
-    max-width: 736px;
-    border-radius: 13px;
     background: #ed2027;
     color: white;
     font-family: "BentonStrong";
@@ -100,13 +81,28 @@
   .op-timeline-arrows .op-friction::before {
     content: "";
     position: absolute;
-    left: 0;
+    left: -40px;
     top: 50%;
-    width: 26px;
-    height: 26px;
+    width: 34px;
+    height: 34px;
     transform: translateY(-50%);
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Ccircle cx='13' cy='13' r='13' fill='%23ed2027'/%3E%3Crect x='11.6' y='6' width='2.8' height='9.5' rx='1.2' fill='white'/%3E%3Ccircle cx='13' cy='19.3' r='1.8' fill='white'/%3E%3C/svg%3E") no-repeat center / contain;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Cpath d='M17 2.5 L31.5 17 L17 31.5 L2.5 17 Z' fill='%23ed2027'/%3E%3Crect x='15.4' y='9' width='3.2' height='11' rx='1.2' fill='white'/%3E%3Ccircle cx='17' cy='24' r='2' fill='white'/%3E%3C/svg%3E") no-repeat center / contain;
     z-index: 1;
+  }
+  /* Caution-tape strip hung below each red note. It sits outside the
+     note box, so the diamond stays centered on the red part. */
+  .op-timeline-arrows .op-friction {
+    padding: 6px 10px;
+    margin-bottom: 18px;
+  }
+  .op-timeline-arrows .op-friction::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 8px;
+    background: repeating-linear-gradient(-45deg, #ffcf01 0 8px, black 8px 16px);
   }
 </style>
 </head>

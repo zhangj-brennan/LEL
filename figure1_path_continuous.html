@@ -44,14 +44,14 @@
         'Disbursement', 'Disbursement'
       ];
 
-      // Each phase 10% lighter than the last, darkest (full black) at
-      // Disbursement and working back to Appropriation.
+      // Blue ramp between the two LEL palette blues: darkest (0e4d8c) at
+      // Disbursement, lightest (0e96d4) at Appropriation.
       var PHASE_COLORS = {
-        'Disbursement': '#000000',
-        'Obligation': '#1a1a1a',
-        'Allotment': '#333333',
-        'Apportionment': '#4d4d4d',
-        'Appropriation': '#666666'
+        'Disbursement': '#0e4d8c',
+        'Obligation': '#0e5f9e',
+        'Allotment': '#0e72b0',
+        'Apportionment': '#0e84c2',
+        'Appropriation': '#0e96d4'
       };
 
       var TITLES = [
@@ -121,12 +121,11 @@
         var el = document.createElementNS(NS, 'text');
         el.setAttribute('x', alignRight ? rightX : leftX);
         el.setAttribute('y', centerY - strokeWidth / 2 - 4);
-        el.setAttribute('fill', 'black');
+        el.setAttribute('fill', PHASE_COLORS[text]);
         el.setAttribute('text-anchor', alignRight ? 'end' : 'start');
         el.setAttribute('font-family', 'BentonStrong, sans-serif');
         el.setAttribute('font-size', 11);
-        el.setAttribute('letter-spacing', '0.4');
-        el.textContent = text.toUpperCase();
+        el.textContent = text;
         return el;
       }
 
@@ -151,7 +150,7 @@
         leftExtra = leftExtra || 0;
         var textLeft = leftX - leftExtra;
         var maxWidth = Math.max(40, segW + rightExtra + leftExtra - pad * 2);
-        var avgCharWidth = fontSize * 0.55;
+        var avgCharWidth = fontSize * 0.6;
         var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
 
         var words = text.split(' ');
@@ -172,7 +171,7 @@
         el.setAttribute('x', textLeft + pad);
         el.setAttribute('fill', 'white');
         el.setAttribute('text-anchor', 'start');
-        el.setAttribute('font-family', 'Benton, sans-serif');
+        el.setAttribute('font-family', 'BentonStrong, sans-serif');
         el.setAttribute('font-size', fontSize);
 
         var numberSpace = 20 * 1.3;

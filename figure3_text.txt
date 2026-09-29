@@ -15,32 +15,32 @@ Before Officer P begins searching for grants, the annual appropriations process 
 	5	Agencies release NOFOs based on available or anticipated funding
 1
 Learn About the Funding Process
-1–3 months+
+1–3 Months+
 Officer P searches DOJ websites to learn when funding will open and where application information will be posted. He calls colleagues in other cities for guidance, but it takes weeks to find the information he needs.
 DOJ has not published a public program plan since 2024, making it harder to research upcoming opportunities.
 2
 Read the NOFOs²
-1–3 weeks+
+1–3 Weeks+
 He reviews the NOFOs; works through eligibility rules, deadlines, required documents, and unfamiliar terms; and tries to determine whether his project fits.
 The process is more complicated than he expected, and he begins questioning whether he has the capacity to do this on his own.
 3
 Set Up SAM.gov and Get a UEI
-2–6 weeks
+2–6 Weeks
 Before he can apply, he has to create a SAM.gov account and register his agency to receive the required UEI.³
 He runs into account issues and has to contact technical support. It takes a week before someone gets back to him.
 4
 Complete the SF-424
-1–2 weeks
+1–2 Weeks
 He completes the SF-424, the standard federal application form, along with any other required forms, and submits them through Grants.gov.
 One field is completed incorrectly, so the application must be resubmitted.
 5
 Complete the JustGrants Application
-2–8 weeks+
+2–8 Weeks+
 He uploads required documents, enters budget information, and completes the remaining application requirements in JustGrants.
 The portal freezes and some of his work is lost, so he has to redo it after his shift.
 6
 Wait for Award Decision
-Varies, often months
+Varies, Often Months
 The application is submitted, but the city cannot move forward with hiring, contracts, or implementation until a decision is made and funding has been awarded.
 Weeks pass, and he cannot get in touch with anyone for an update or a timeline.
 7
@@ -57,7 +57,7 @@ He hires or contracts program staff, begins implementing the program, and starts
 Who will manage the implementation, coordination, data collection, and reporting? He still has to work his full-time job!
 9
 Sustain the Program
-2–3 years & beyond
+2–3 Years & Beyond
 The program is making a big difference in his community and is strongly supported by residents. Officer P now has to plan how to keep it going. If another grant cycle is offered, he repeats the application process. If not, he has to search for another funding source.
 He does not know whether future appropriations will fund another grant cycle, so he encourages community members to ask their members of Congress to support continued funding.
 Other Challenges

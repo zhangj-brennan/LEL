@@ -52,6 +52,7 @@ body::before {
 }
 .grants-title {
   margin: 0 0 12px;
+  color: #0e4d8c;
   font-size: 16px;
   font-family: "BentonStrong";
   font-weight: normal;
@@ -64,7 +65,7 @@ body::before {
 }
 .grant-card {
   background: white;
-  border-top: 3px solid black;
+  border-top: 3px solid #0e4d8c;
   padding: 8px 6px 0;
 }
 .grant-card h3 {
@@ -72,7 +73,7 @@ body::before {
   font-size: 13px;
   font-family: "BentonStrong";
   font-weight: normal;
-  color: black;
+  color: #0e4d8c;
 }
 .grant-card p {
   margin: 6px 0 0;
@@ -216,7 +217,7 @@ h1.wrap-title {
   position: absolute;
   top: 0;
   height: clamp(14px, 3vw, 32px);
-  border-top: 6px solid black;
+  border-top: 6px solid #0e4d8c;
 }
 .tree li::before {
   right: 50%;
@@ -226,7 +227,7 @@ h1.wrap-title {
   left: 50%;
   right: auto;
   width: 50%;
-  border-left: 6px solid black;
+  border-left: 6px solid #0e4d8c;
 }
 .tree li:only-child::before,
 .tree li:only-child::after {
@@ -237,10 +238,10 @@ h1.wrap-title {
   border: none;
 }
 .tree li:last-child::before {
-  border-right: 6px solid black;
+  border-right: 6px solid #0e4d8c;
 }
 .tree li:first-child::after {
-  border-left: 6px solid black;
+  border-left: 6px solid #0e4d8c;
 }
 .tree ul ul::before {
   content: "";
@@ -249,7 +250,7 @@ h1.wrap-title {
   left: 50%;
   width: 0;
   height: clamp(14px, 3vw, 32px);
-  border-left: 6px solid black;
+  border-left: 6px solid #0e4d8c;
 }
 
 .node {
@@ -270,12 +271,14 @@ h1.wrap-title {
 }
 .node.top .dept {
   display: inline-block;
+  color: #0e4d8c;
   font-size: 26px;
 }
 .node.top .grantmaking {
   display: inline-block;
   padding: 0 10px;
   font-family: "Benton";
+  color: #0e4d8c;
 }
 
 .node strong {
@@ -292,24 +295,24 @@ h1.wrap-title {
 .node.ovw .node-header strong {
   display: block;
   width: 100%;
-  border-top: 6px solid black;
+  border-top: 6px solid #0e4d8c;
   padding-top: 4px;
 }
 .node.ojp .node-header strong {
-  color: black;
-  border-top-color: black;
+  color: #0e96d4;
+  border-top-color: #0e96d4;
 }
 .node.cops .node-header strong {
-  color: black;
-  border-top-color: black;
+  color: #0e72b0;
+  border-top-color: #0e72b0;
 }
 .node.ovw .node-header strong {
-  color: black;
-  border-top-color: black;
+  color: #0e4d8c;
+  border-top-color: #0e4d8c;
 }
-.node.ojp .name { color: black; }
-.node.cops .name { color: black; }
-.node.ovw .name { color: black; }
+.node.ojp .name { color: #0e96d4; }
+.node.cops .name { color: #0e72b0; }
+.node.ovw .name { color: #0e4d8c; }
 
 .node.cops .name,
 .node.ojp .name,
@@ -325,6 +328,10 @@ h1.wrap-title {
   padding: 0;
   width: 100%;
   max-width: 200px;
+  /* Sit above the tree connectors so each colored header rule covers
+     the dark line where they join. */
+  position: relative;
+  z-index: 1;
 }
 .node.ojp {
   max-width: 400px;
@@ -355,7 +362,8 @@ h1.wrap-title {
 .node.ojp .offices > li .office-header {
   display: block;
   background: white;
-  border-top: 3px solid black;
+  border-top: 3px solid #0e96d4;
+  color: #0e96d4;
   padding: 6px 6px 4px;
   line-height: 0.9;
   list-style: none;
@@ -430,7 +438,7 @@ h1.wrap-title {
   font-family: "BentonStrong";
   font-size: 12px;
   line-height: 0.9;
-  color: black;
+  color: #0e96d4;
 }
 
 .node p {
@@ -573,12 +581,12 @@ h1.wrap-title {
   font-family: "BentonStrong";
   font-weight: normal;
   font-size: 12px;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .step {
   display: flex;
   gap: 12px;
-  border-top: 1px solid black;
+  border-top: 1px solid #0e4d8c;
   padding: 10px 0;
 }
 .step-number {
@@ -589,7 +597,7 @@ h1.wrap-title {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: black;
+  background: #0e4d8c;
   color: white;
   font-family: "BentonStrong";
   font-size: 12px;
@@ -599,6 +607,7 @@ h1.wrap-title {
   font-family: "BentonStrong";
   font-weight: normal;
   font-size: 13px;
+  color: #0e4d8c;
 }
 .step-content p {
   margin: 0;
@@ -636,8 +645,8 @@ h1.wrap-title {
     margin: 0;
     padding-right: 16px;
     background: white;
-    color: #ed1c24;
-    border-top: 2px solid #ed1c24;
+    color: #0e4d8c;
+    border-top: 2px solid #0e4d8c;
     padding-top: 4px;
   }
   .step {
@@ -646,7 +655,7 @@ h1.wrap-title {
   }
   .phase-title + .step {
     border-top-width: 2px;
-    border-top-color: #ed1c24;
+    border-top-color: #0e4d8c;
   }
 }
 
@@ -804,7 +813,7 @@ h1.wrap-title {
   }
 
   .phase-title {
-    background: #ed1c24;
+    background: #0e4d8c;
     color: white;
   }
 

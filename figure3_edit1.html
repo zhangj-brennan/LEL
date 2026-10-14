@@ -3777,6 +3777,11 @@ html body .journey .route-row .step-card .step-head .time{background:none!import
 /* Time labels in sentence case; clock icon sized to the text with a matching stroke weight. */
 html body .journey .route-row .step-card .step-head .time{text-transform:none!important;gap:5px!important;}
 html body .journey .route-row .step-card .step-head .time-clock{width:12px!important;height:12px!important;stroke-width:2.6!important;stroke-linecap:round!important;stroke-linejoin:round!important;}
+/* More space between the two columns at the top and bottom (desktop). */
+@media screen and (min-width:700px) and (hover:hover) and (pointer:fine){
+  html body #story-flow .context-grid{column-gap:48px!important;}
+  html body .page-shell .support-grid{column-gap:48px!important;}
+}
 /* Narrow screens (phones, tablets, small windows): one column, steps 1-9 in order
    along a straight road on the left that starts at circle 1 and ends at circle 9. */
 @media not all and (min-width:700px) and (hover:hover) and (pointer:fine){

@@ -3696,7 +3696,7 @@ html,body{overflow-x:hidden!important;}
 </style>
 <style id="fit-880-context-20261014">
 /* Step headers: blue title text on no box. */
-html body .journey .step-card .step-head{min-height:0!important;padding:16px 8px 12px!important;border:0!important;background:none!important;color:#0e4d8c!important;}
+html body .journey .step-card .step-head{min-height:0!important;padding:4px 8px 12px!important;border:0!important;background:none!important;color:#0e4d8c!important;}
 html body .journey .step-card .step-title{color:#0e4d8c!important;}
 html body .journey .step-card .step-head::before{content:none!important;display:none!important;}
 html body .journey .step-card .step-marker{z-index:2!important;}
@@ -3709,8 +3709,8 @@ html body .report::after{box-shadow:0 3px 0 currentColor,0 6px 0 currentColor!im
 html body .journey .roadblock{border:0!important;box-shadow:none!important;}
 html body .journey .roadblock::before{box-shadow:none!important;}
 /* Step numbers: plain dark blue circles with white numerals, no border. */
-html body .journey .route-row .step-card .step-head .step-marker{box-sizing:border-box!important;width:32px!important;height:32px!important;border:3px solid #fff!important;border-radius:50%!important;outline:0!important;box-shadow:none!important;background:#0e4d8c!important;color:#fff!important;}
-html body .journey .route-row .step-card .step-head .step-marker .marker-digit{color:#fff!important;font-size:16px!important;line-height:1!important;}
+html body .journey .route-row .step-card .step-head .step-marker{box-sizing:border-box!important;width:32px!important;height:32px!important;border:0!important;border-radius:50%!important;outline:0!important;box-shadow:none!important;background:#0e4d8c!important;color:#fff!important;}
+html body .journey .route-row .step-card .step-head .step-marker .marker-digit{color:#fff!important;font-size:25px!important;line-height:1!important;}
 /* Steps left-aligned: number, title, time, paragraph and warning text share a 14px inset. */
 html body .journey .route-row .step-card .step-head .step-marker{left:30px!important;right:auto!important;top:-26px!important;margin:0!important;}
 html body .journey .route-row .step-card .step-head>.step-title,html body .journey .route-row .step-card .step-head>.time{align-self:flex-start!important;justify-self:start!important;margin-left:0!important;margin-right:auto!important;text-align:left!important;}
@@ -3726,6 +3726,8 @@ html body .journey .roadblock>span:not(.hazard-icon){display:inline!important;}
 /* Step 8 reporting requirements as a plain bulleted list. */
 html body .journey .step-body .report-bullets{margin:8px 0 0!important;padding:0 0 0 1.2em!important;list-style:disc outside!important;}
 html body .journey .step-body .report-bullets li{display:list-item!important;margin:0 0 .25em!important;padding:0!important;border:0!important;background:none!important;color:#000000!important;font-size:12px!important;line-height:1.5!important;font-weight:400!important;}
+/* Step 1 nudged 10px left. */
+html body .journey .route-row .step-card[data-step="1"]{left:-10px!important;}
 /* Steps 2 and 3 nudged 10px left. */
 html body .journey .route-row .step-card[data-step="2"],html body .journey .route-row .step-card[data-step="3"]{left:-10px!important;}
 /* Steps 4, 5 and 6 nudged 20px right. */
@@ -3793,7 +3795,7 @@ html body .journey .route-row .step-card .step-head .time-clock{width:12px!impor
 
   html body #story-flow .journey-section{margin:0!important;padding:0!important;width:100%!important;}
   html body #story-flow .journey{position:relative!important;height:auto!important;width:100%!important;max-width:100%!important;margin:0!important;padding:0 0 0 60px!important;box-sizing:border-box!important;}
-  html body #story-flow .journey::before{content:""!important;display:block!important;position:absolute!important;z-index:0!important;left:0!important;width:44px!important;top:var(--road-top,0px)!important;height:var(--road-height,100%)!important;bottom:auto!important;margin:0!important;border:0!important;border-radius:0!important;opacity:1!important;box-shadow:none!important;background:repeating-linear-gradient(to bottom,#fff 0 16px,transparent 16px 31px) center top/3px 100% no-repeat,#0e4d8c!important;}
+  html body #story-flow .journey::before{content:""!important;display:block!important;position:absolute!important;z-index:0!important;left:0!important;width:44px!important;top:var(--road-top,0px)!important;height:var(--road-height,100%)!important;bottom:auto!important;margin:0!important;border:0!important;border-radius:0!important;opacity:1!important;box-shadow:none!important;background:repeating-linear-gradient(to bottom,#fff 0 16px,transparent 16px 31px) center 52px/3px calc(100% - 104px) no-repeat,#0e4d8c!important;}
   html body #story-flow .journey::after,html body #story-flow .journey .mobile-road-piece{content:none!important;display:none!important;}
   html body #story-flow .journey .journey-road-svg,html body #story-flow .journey .road-stop-html{display:none!important;}
   html body #story-flow .journey .route-row{position:static!important;display:block!important;top:auto!important;left:auto!important;right:auto!important;width:auto!important;margin:0!important;padding:0!important;}
@@ -3823,6 +3825,7 @@ html body .page-shell .journey .route-row .step-card .roadblock{margin-top:6px!i
   const LINE_OFFSET=26; // road centerline sits this far above each row's cards
   const STUB_LENGTH=96; // minimum vertical road before the first turn, starting at step 1's circle
   const MARKER_RADIUS=16; // step circles are 32px including the white border
+  const ROAD_LEAD=10; // road extends this far past circle 1 and circle 9
   // Narrow layout: undo the desktop positioning and run the straight road
   // from the center of circle 1 to the center of circle 9.
   function straightRoad(road){
@@ -3836,8 +3839,8 @@ html body .page-shell .journey .route-row .step-card .roadblock{margin-top:6px!i
     if(!first||!last) return;
     const j=road.getBoundingClientRect();
     const center=m=>{ const r=m.getBoundingClientRect(); return r.top+r.height/2-j.top; };
-    // Start just above circle 1 (radius plus 8px); end at the center of circle 9.
-    const top=center(first)-MARKER_RADIUS-8, bottom=center(last);
+    // Run from 10px above circle 1 to 10px below circle 9.
+    const top=center(first)-MARKER_RADIUS-ROAD_LEAD, bottom=center(last)+MARKER_RADIUS+ROAD_LEAD;
     road.style.setProperty('--road-top',top+'px');
     road.style.setProperty('--road-height',Math.max(0,bottom-top)+'px');
   }
@@ -3861,7 +3864,7 @@ html body .page-shell .journey .route-row .step-card .roadblock{margin-top:6px!i
     road.style.setProperty('height',height+'px','important');
     const W=svg.getBoundingClientRect().width, s=W/1200;
     const lead=70*s, right=W-2, left=12*s, r=50;
-    // The road ends at the center of step 9's circle.
+    // Step 9's circle center; the road runs 10px past the circle.
     const last=road.querySelector('.step-card[data-step="9"] .step-marker');
     const lr=last&&last.getBoundingClientRect();
     const end=lr?lr.left+lr.width/2-svg.getBoundingClientRect().left:1150*s;
@@ -3883,9 +3886,9 @@ html body .page-shell .journey .route-row .step-card .roadblock{margin-top:6px!i
       // The road begins at step 1's circle, whose top edge sits 16px under the text.
       start=meetBottom+16+MARKER_RADIUS;
     }
-    const d=`M${lead} ${start} V${y1-r} Q${lead} ${y1} ${lead+r} ${y1} H${right-r} Q${right} ${y1} ${right} ${y1+r} `+
+    const d=`M${lead} ${start-MARKER_RADIUS-ROAD_LEAD} V${y1-r} Q${lead} ${y1} ${lead+r} ${y1} H${right-r} Q${right} ${y1} ${right} ${y1+r} `+
       `V${y2-r} Q${right} ${y2} ${right-r} ${y2} H${left+r} Q${left} ${y2} ${left} ${y2+r} `+
-      `V${y3-r} Q${left} ${y3} ${left+r} ${y3} H${end}`;
+      `V${y3-r} Q${left} ${y3} ${left+r} ${y3} H${end+MARKER_RADIUS+ROAD_LEAD}`;
     svg.setAttribute('viewBox',`0 0 ${W} ${height}`);
     svg.style.setProperty('height',height+'px','important');
     svg.querySelectorAll('path').forEach(p=>p.setAttribute('d',d));

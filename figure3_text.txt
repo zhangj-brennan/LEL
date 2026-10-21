@@ -4,13 +4,13 @@ This hypothetical scenario draws on real-world experiences shared by law enforce
 Meet Officer P
 Officer P is a veteran police officer in a small rural town who sees the same challenges every day: overdoses, behavioral health crises, and homelessness. He knows that jail, the main tool he has at hand, will not help steer people toward sobriety or stable lives.
 Through research, he learns about co-responder models, which pair officers with mental health professionals on behavioral health calls. The approach has shown promising results elsewhere, and he hopes it can help his community.
-Officer P gets buy-in from his police chief, the mayor’s office, the local clinic, and the community. Some remain skeptical, but they agree that the status quo is not working. The city council approves the pilot program contingent on receiving external funding, such as a grant.
-Since the city and state do not have room in their budgets to fund the program, Officer P speaks with his district’s representative in Congress about possible options. His representative points him to JMHCP¹ and other DOJ grant programs that may support initiatives like his.
+Officer P gets buy-in from his police chief, the mayor’s office, the local clinic, and the community. Some remain skeptical, but they agree that the status quo is not working.
+The city council approves the pilot program, but since the city and state do not have room in their budgets to fund it, approval is contingent on receiving external funding, such as a grant. Officer P speaks with his district’s representative in Congress about possible options. His representative points him to JMHCP¹ and other DOJ grant programs that may support initiatives like his.
 Appropriations Process
 Before Officer P begins searching for grants, the annual appropriations process determines how much funding is available for DOJ grant programs. This process can affect when grant opportunities are announced and whether awards can be made.
 	1	Agencies submit budget requests to OMB
 	2	President submits budget request to Congress
-	3	Congress holds hearings and passes appropriations, which the president signs into law
+	3	Congress holds hearings and passes appropriations, which the President signs into law
 	4	OMB apportions funds to agencies
 	5	Agencies release NOFOs based on available or anticipated funding
 1

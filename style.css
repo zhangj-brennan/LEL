@@ -160,6 +160,14 @@ h1.wrap-title {
   font-size: 13px;
   color: #0e4d8c;
 }
+.index-heading {
+  max-width: 900px;
+  margin: 40px 0 0;
+  font-family: "BentonStrong";
+  font-weight: normal;
+  font-size: 16px;
+  text-transform: uppercase;
+}
 .index-list .index-note {
   display: block;
   margin-top: 2px;

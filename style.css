@@ -172,6 +172,7 @@ h1.wrap-title {
   font-weight: normal;
   font-size: 16px;
   text-transform: uppercase;
+  color: #999999;
 }
 .index-list .index-note {
   display: block;

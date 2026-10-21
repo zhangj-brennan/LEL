@@ -40,6 +40,9 @@ body::before {
   letter-spacing: 0.08em;
   text-align: center;
 }
+body.no-draft::before {
+  content: none;
+}
 
 #container {
   max-width: 900px;

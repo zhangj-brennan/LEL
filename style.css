@@ -160,6 +160,11 @@ h1.wrap-title {
   font-size: 13px;
   color: #0e4d8c;
 }
+.index-unused a,
+.index-unused a[href$=".pdf"],
+.index-unused .index-date {
+  color: #999999;
+}
 .index-heading {
   max-width: 900px;
   margin: 40px 0 0;

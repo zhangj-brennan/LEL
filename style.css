@@ -999,3 +999,8 @@ h1.wrap-title {
   margin: 0;
   overflow: visible;
 }
+
+.footnote a {
+  color: inherit;
+  overflow-wrap: anywhere;
+}

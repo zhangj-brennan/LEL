@@ -43,10 +43,10 @@ The recipient carries out approved activities, requests payments through ASAP, t
 Recipient Completes Closeout Requirements
 After the award ends, the recipient submits final financial, performance, and other required reports, meets award conditions, and resolves closeout requirements. DOJ reviews and closes the award.
 DOJ monitoring and oversight continue throughout the award period
-Scope: This figure illustrates a simplified version of a typical competitive DOJ discretionary grant. Formula grants and other assistance mechanisms may follow different processes. For more detail on the federal budget process, see CRS, Introduction to the Federal Budget Process.
+Scope: This figure illustrates a simplified version of a typical competitive DOJ discretionary grant. Formula grants and other assistance mechanisms may follow different processes. For more detail on the federal budget process, see Congress.gov, “Introduction to the Federal Budget Process,” https://www.congress.gov/crs-product/R46240.
 Current status: On June 30, 2026, DOJ announced a plan to consolidate OJP, the COPS Office, and OVW into a single grantmaking component named the Bureau of Justice Grants, although the plan has not been finalized and will likely require congressional approval.
 Sources: GAO Federal Budget Glossary; DOJ Program Plan; DOJ JustGrants Resources; DOJ Tribal Justice and Safety.
 *Note: As of August 2026, DOJ had not published a Program Plan for nearly two years.
 ¹ UEI (Unique Entity Identifier): A 12-character alphanumeric code assigned by SAM.gov to uniquely identify an entity in federal award systems.
 ² JustGrants (Justice Grants System): DOJ’s grant application and award management system for OJP, OVW, and the COPS Office.
-³ DOJ has announced plans to end its use of outside peer reviewers for competitive grants this fall, with OJP and OVW staff conducting internal peer reviews instead.
+³ DOJ has announced plans to end its use of outside peer reviewers for competitive grants this fall, with OJP and OVW staff conducting internal peer reviews instead. Sarah Lynch, “DOJ to stop using outside experts to help vet competitive grant applicants,” CBS, August 18, 2026, https://www.cbsnews.com/news/justice-department-peer-review-grant-applications/.

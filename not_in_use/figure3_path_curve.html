@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Officer P&rsquo;s Journey</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../style.css">
 </head>
 <body>
   <div id="container">
@@ -60,13 +60,14 @@
 
   <script>
     (function () {
-      var MIN_SQUARE = 150;    // smallest a grid square is allowed to be before dropping a column
-      var GAP = 2;             // gap between squares
+      var MIN_SQUARE = 180;    // smallest a grid square is allowed to be before dropping a column
+      var GAP = 2;             // gap between squares in the same row
+      var ROW_GAP = 40;        // gap between rows
       var DARK_GREY = '#4d4d4d'; // background for the black description squares (title squares stay black)
       var NUMBER_FONT_SIZE = 28; // step number badge, e.g. "1"
       var TITLE_FONT_SIZE = 16;  // step title text, e.g. "Learn About the Funding Process"
-      var BODY_FONT_SIZE = 14;   // minimum size for description/friction/list body text
-      var DURATION_FONT_SIZE = 14; // minimum size for the yellow time-marker labels
+      var BODY_FONT_SIZE = 12;   // minimum size for description/friction/list body text
+      var DURATION_FONT_SIZE = 12; // minimum size for the yellow time-marker labels
 
       var TITLES = [
         'Appropriations Process',
@@ -139,16 +140,20 @@
       ];
 
       // Explicit list of squares in path order. Group 0 (Appropriations
-      // Process) is a combined title+paragraph square followed by a grey
-      // list square. Groups 1-9 are each just a combined number/title/
-      // description square (stepbox) followed by their friction square —
-      // no more separate title and description squares.
+      // Process) is now a grey heading square, a grey paragraph square,
+      // and each of the 5 list items in its own grey square. Groups 1-9
+      // are each a separate number/title square and description square,
+      // followed by their friction square.
       var SEGMENTS = [
-        { type: 'titledesc', group: 0 },
-        { type: 'list', group: 0 }
+        { type: 'approp-title', group: 0 },
+        { type: 'approp-desc', group: 0 }
       ];
+      for (var li = 0; li < 5; li++) {
+        SEGMENTS.push({ type: 'approp-item', group: 0, item: li });
+      }
       for (var g = 1; g <= 9; g++) {
-        SEGMENTS.push({ type: 'stepbox', group: g });
+        SEGMENTS.push({ type: 'title', group: g });
+        SEGMENTS.push({ type: 'desc', group: g });
         SEGMENTS.push({ type: 'friction', group: g });
       }
       var TOTAL = SEGMENTS.length;
@@ -166,6 +171,21 @@
         return el;
       }
 
+      // Semicircular connector between the end of one row and the start
+      // of the next, at a single x (both endpoints share that x), bulging
+      // out to whichever side `sweep` picks. Stroked at `strokeWidth` so
+      // it reads as a continuation of the square it's touching.
+      function semicircle(x, y1, y2, sweep, strokeWidth, color) {
+        var radius = Math.abs(y2 - y1) / 2;
+        var el = document.createElementNS(NS, 'path');
+        el.setAttribute('d', 'M' + x + ',' + y1 + ' A' + radius + ',' + radius + ' 0 0,' + sweep + ' ' + x + ',' + y2);
+        el.setAttribute('fill', 'none');
+        el.setAttribute('stroke', color || 'black');
+        el.setAttribute('stroke-width', strokeWidth);
+        el.setAttribute('stroke-linecap', 'butt');
+        return el;
+      }
+
       function label(leftX, centerY, strokeWidth, n) {
         var pad = 10;
         var el = document.createElementNS(NS, 'text');
@@ -180,63 +200,44 @@
         return el;
       }
 
-      // Combined number/title/description square used for steps 1-9:
-      // the title (with its number badge, drawn separately by label())
-      // and the description paragraph both live in this one black box,
-      // with the duration still pinned to the bottom.
-      function stepTitleBody(leftX, centerY, strokeWidth, segW, title, body, duration) {
+      // Number/title square used for steps 1-9 — the number badge (drawn
+      // separately by label()) plus the title and duration, no
+      // description text (that lives in its own square via textBox()).
+      function stepTitle(leftX, centerY, strokeWidth, segW, text, duration) {
         var pad = 10;
-        var titleFontSize = TITLE_FONT_SIZE;
-        var bodyFontSize = BODY_FONT_SIZE;
+        var fontSize = TITLE_FONT_SIZE;
         var maxWidth = Math.max(40, segW - pad * 2);
+        var avgCharWidth = fontSize * 0.55;
+        var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
 
-        function wrap(text, fontSize, avgCharWidthFactor) {
-          var avgCharWidth = fontSize * avgCharWidthFactor;
-          var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
-          var words = text.split(' ');
-          var lines = [];
-          var current = '';
-          words.forEach(function (w) {
-            var test = current ? current + ' ' + w : w;
-            if (test.length > maxChars && current) {
-              lines.push(current);
-              current = w;
-            } else {
-              current = test;
-            }
-          });
-          if (current) lines.push(current);
-          return lines;
-        }
-
-        var titleLines = wrap(title, titleFontSize, 0.55);
-        var bodyLines = wrap(body, bodyFontSize, 0.5);
+        var words = text.split(' ');
+        var lines = [];
+        var current = '';
+        words.forEach(function (w) {
+          var test = current ? current + ' ' + w : w;
+          if (test.length > maxChars && current) {
+            lines.push(current);
+            current = w;
+          } else {
+            current = test;
+          }
+        });
+        if (current) lines.push(current);
 
         var el = document.createElementNS(NS, 'text');
         el.setAttribute('x', leftX + pad);
         el.setAttribute('fill', 'white');
         el.setAttribute('text-anchor', 'start');
         el.setAttribute('font-family', 'Benton, sans-serif');
+        el.setAttribute('font-size', fontSize);
 
         var numberSpace = NUMBER_FONT_SIZE * 1.3;
-        var titleLineHeight = titleFontSize * 1.3;
-        var titleStartY = centerY - strokeWidth / 2 + pad + numberSpace + titleFontSize - 7;
-        titleLines.forEach(function (lineText, i) {
+        var startY = centerY - strokeWidth / 2 + pad + numberSpace + fontSize - 7;
+        var lineHeight = fontSize * 1.3;
+        lines.forEach(function (lineText, i) {
           var tspan = document.createElementNS(NS, 'tspan');
           tspan.setAttribute('x', leftX + pad);
-          tspan.setAttribute('y', titleStartY + i * titleLineHeight);
-          tspan.setAttribute('font-size', titleFontSize);
-          tspan.textContent = lineText;
-          el.appendChild(tspan);
-        });
-
-        var bodyLineHeight = bodyFontSize * 1.25;
-        var bodyStartY = titleStartY + titleLines.length * titleLineHeight + bodyFontSize + 6;
-        bodyLines.forEach(function (lineText, i) {
-          var tspan = document.createElementNS(NS, 'tspan');
-          tspan.setAttribute('x', leftX + pad);
-          tspan.setAttribute('y', bodyStartY + i * bodyLineHeight);
-          tspan.setAttribute('font-size', bodyFontSize);
+          tspan.setAttribute('y', startY + i * lineHeight);
           tspan.textContent = lineText;
           el.appendChild(tspan);
         });
@@ -255,17 +256,64 @@
         return el;
       }
 
-      // Combined heading + paragraph square, used for the Appropriations
-      // Process square: a bold heading line, then its body text wrapped
-      // underneath, both inside the one box — no number, no duration.
-      function titleDescBox(leftX, centerY, strokeWidth, segW, heading, body) {
+      // Bold heading-only square, used for the Appropriations Process
+      // title square — just the wrapped heading, no body, no number.
+      function headingBox(leftX, centerY, strokeWidth, segW, heading) {
         var pad = 10;
-        var headingFontSize = 13;
-        var bodyFontSize = BODY_FONT_SIZE;
+        var fontSize = TITLE_FONT_SIZE;
         var maxWidth = Math.max(40, segW - pad * 2);
+        var avgCharWidth = fontSize * 0.55;
+        var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
 
-        function wrap(text, fontSize, avgCharWidthFactor) {
-          var avgCharWidth = fontSize * avgCharWidthFactor;
+        var words = heading.split(' ');
+        var lines = [];
+        var current = '';
+        words.forEach(function (w) {
+          var test = current ? current + ' ' + w : w;
+          if (test.length > maxChars && current) {
+            lines.push(current);
+            current = w;
+          } else {
+            current = test;
+          }
+        });
+        if (current) lines.push(current);
+
+        var el = document.createElementNS(NS, 'text');
+        el.setAttribute('x', leftX + pad);
+        el.setAttribute('fill', 'white');
+        el.setAttribute('text-anchor', 'start');
+        el.setAttribute('font-family', 'BentonStrong, sans-serif');
+        el.setAttribute('font-size', fontSize);
+
+        var lineHeight = fontSize * 1.3;
+        var startY = centerY - strokeWidth / 2 + pad + fontSize;
+        lines.forEach(function (lineText, i) {
+          var tspan = document.createElementNS(NS, 'tspan');
+          tspan.setAttribute('x', leftX + pad);
+          tspan.setAttribute('y', startY + i * lineHeight);
+          tspan.textContent = lineText;
+          el.appendChild(tspan);
+        });
+        return el;
+      }
+
+      // Generic centered, word-wrapped text block for a plain-color
+      // segment (no number, no duration) — used for both the black
+      // description box and the yellow friction box. Shrinks its own
+      // font size (down to a floor) until the wrapped text actually fits
+      // the box's available height, so nothing ever renders outside the
+      // square even if the grid sizing estimate was a tight fit.
+      function textBox(leftX, centerY, strokeWidth, segW, text, textColor, bold) {
+        var pad = 10;
+        var maxWidth = Math.max(40, segW - pad * 2);
+        var availableHeight = Math.max(10, strokeWidth - pad * 2);
+
+        function wrap(fontSize) {
+          // Bold characters run wider than regular ones at the same
+          // font-size, so bold text needs a bigger per-character estimate
+          // or its lines run past the box edge before wrapping.
+          var avgCharWidth = fontSize * (bold ? 0.58 : 0.5);
           var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
           var words = text.split(' ');
           var lines = [];
@@ -283,119 +331,12 @@
           return lines;
         }
 
-        var headingLines = wrap(heading, headingFontSize, 0.55);
-        var bodyLines = wrap(body, bodyFontSize, 0.5);
-
-        var el = document.createElementNS(NS, 'text');
-        el.setAttribute('x', leftX + pad);
-        el.setAttribute('fill', 'white');
-        el.setAttribute('text-anchor', 'start');
-        el.setAttribute('font-family', 'Benton, sans-serif');
-
-        var headingLineHeight = headingFontSize * 1.3;
-        var headingStartY = centerY - strokeWidth / 2 + pad + headingFontSize;
-        headingLines.forEach(function (lineText, i) {
-          var tspan = document.createElementNS(NS, 'tspan');
-          tspan.setAttribute('x', leftX + pad);
-          tspan.setAttribute('y', headingStartY + i * headingLineHeight);
-          tspan.setAttribute('font-size', headingFontSize);
-          tspan.setAttribute('font-family', 'BentonStrong, sans-serif');
-          tspan.textContent = lineText;
-          el.appendChild(tspan);
-        });
-
-        var bodyLineHeight = bodyFontSize * 1.25;
-        var bodyStartY = headingStartY + headingLines.length * headingLineHeight + bodyFontSize + 4;
-        bodyLines.forEach(function (lineText, i) {
-          var tspan = document.createElementNS(NS, 'tspan');
-          tspan.setAttribute('x', leftX + pad);
-          tspan.setAttribute('y', bodyStartY + i * bodyLineHeight);
-          tspan.setAttribute('font-size', bodyFontSize);
-          tspan.textContent = lineText;
-          el.appendChild(tspan);
-        });
-        return el;
-      }
-
-      // Numbered list block — each item gets its own number and wraps
-      // independently, with a little extra space between items, instead
-      // of running together as one paragraph like textBox().
-      function listBox(leftX, centerY, strokeWidth, segW, items) {
-        var pad = 10;
         var fontSize = BODY_FONT_SIZE;
-        var numberWidth = 16;
-        var maxWidth = Math.max(40, segW - pad * 2 - numberWidth);
-        var avgCharWidth = fontSize * 0.5;
-        var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
-
-        function wrap(text) {
-          var words = text.split(' ');
-          var lines = [];
-          var current = '';
-          words.forEach(function (w) {
-            var test = current ? current + ' ' + w : w;
-            if (test.length > maxChars && current) {
-              lines.push(current);
-              current = w;
-            } else {
-              current = test;
-            }
-          });
-          if (current) lines.push(current);
-          return lines;
+        var lines = wrap(fontSize);
+        while (fontSize > 8 && lines.length * (fontSize * 1.25) > availableHeight) {
+          fontSize -= 1;
+          lines = wrap(fontSize);
         }
-
-        var el = document.createElementNS(NS, 'text');
-        el.setAttribute('fill', 'white');
-        el.setAttribute('text-anchor', 'start');
-        el.setAttribute('font-family', 'Benton, sans-serif');
-        el.setAttribute('font-size', fontSize);
-
-        var lineHeight = fontSize * 1.25;
-        var itemGap = fontSize * 0.5;
-        var y = centerY - strokeWidth / 2 + pad + fontSize;
-        items.forEach(function (item, idx) {
-          var lines = wrap(item);
-          var numTspan = document.createElementNS(NS, 'tspan');
-          numTspan.setAttribute('x', leftX + pad);
-          numTspan.setAttribute('y', y);
-          numTspan.textContent = (idx + 1) + '.';
-          el.appendChild(numTspan);
-          lines.forEach(function (lineText, i) {
-            var tspan = document.createElementNS(NS, 'tspan');
-            tspan.setAttribute('x', leftX + pad + numberWidth);
-            tspan.setAttribute('y', y + i * lineHeight);
-            tspan.textContent = lineText;
-            el.appendChild(tspan);
-          });
-          y += lines.length * lineHeight + itemGap;
-        });
-        return el;
-      }
-
-      // Generic centered, word-wrapped text block for a plain-color
-      // segment (no number, no duration) — used for both the black
-      // description box and the yellow friction box.
-      function textBox(leftX, centerY, strokeWidth, segW, text, textColor, bold) {
-        var pad = 10;
-        var fontSize = BODY_FONT_SIZE;
-        var maxWidth = Math.max(40, segW - pad * 2);
-        var avgCharWidth = fontSize * 0.5;
-        var maxChars = Math.max(6, Math.floor(maxWidth / avgCharWidth));
-
-        var words = text.split(' ');
-        var lines = [];
-        var current = '';
-        words.forEach(function (w) {
-          var test = current ? current + ' ' + w : w;
-          if (test.length > maxChars && current) {
-            lines.push(current);
-            current = w;
-          } else {
-            current = test;
-          }
-        });
-        if (current) lines.push(current);
 
         var el = document.createElementNS(NS, 'text');
         el.setAttribute('x', leftX + pad);
@@ -438,46 +379,38 @@
 
       // Minimum box height (stroke width) needed for this segment's text
       // to fit without overflowing, at its own computed width.
-      function requiredHeightForSegment(type, groupIdx, segW) {
+      function requiredHeightForSegment(seg, segW) {
+        var type = seg.type;
+        var groupIdx = seg.group;
         var pad = 10;
         var maxWidth = Math.max(40, segW - pad * 2);
-        if (type === 'stepbox') {
+        if (type === 'title') {
           var titleLines = wrapLineCount(TITLES[groupIdx], TITLE_FONT_SIZE, maxWidth, 0.55);
           var numberSpace = NUMBER_FONT_SIZE * 1.3;
           var titleBlock = numberSpace + titleLines * (TITLE_FONT_SIZE * 1.3);
-          var descLines = wrapLineCount(BLACK_TEXT[groupIdx], BODY_FONT_SIZE, maxWidth, 0.5);
-          var descBlock = descLines * (BODY_FONT_SIZE * 1.25) + BODY_FONT_SIZE + 6;
           var durationSpace = DURATIONS[groupIdx] ? (DURATION_FONT_SIZE + 6) : 0;
-          return pad + titleBlock + descBlock + durationSpace + pad;
+          return pad + titleBlock + durationSpace + pad;
         }
-        if (type === 'titledesc') {
-          var headingLines = wrapLineCount(TITLES[groupIdx], 13, maxWidth, 0.55);
-          var bodyLines = wrapLineCount(BLACK_TEXT[groupIdx], BODY_FONT_SIZE, maxWidth, 0.5);
-          var headingBlock = headingLines * (13 * 1.3);
-          var bodyBlock = bodyLines * (BODY_FONT_SIZE * 1.25) + BODY_FONT_SIZE + 4;
-          return pad + headingBlock + bodyBlock + pad;
+        if (type === 'approp-title') {
+          var headingLines = wrapLineCount(TITLES[groupIdx], TITLE_FONT_SIZE, maxWidth, 0.55);
+          return pad + headingLines * (TITLE_FONT_SIZE * 1.3) + pad;
         }
-        if (type === 'list') {
-          var numberWidth = 16;
-          var listMaxWidth = Math.max(40, segW - pad * 2 - numberWidth);
-          var totalLines = 0;
-          APPROP_LIST.forEach(function (item) {
-            totalLines += wrapLineCount(item, BODY_FONT_SIZE, listMaxWidth, 0.5);
-          });
-          var itemGap = BODY_FONT_SIZE * 0.5;
-          return pad + totalLines * (BODY_FONT_SIZE * 1.25) + (APPROP_LIST.length - 1) * itemGap + pad;
+        if (type === 'approp-item') {
+          var itemText = (seg.item + 1) + '. ' + APPROP_LIST[seg.item];
+          var itemLines = wrapLineCount(itemText, BODY_FONT_SIZE, maxWidth, 0.5);
+          return pad + itemLines * (BODY_FONT_SIZE * 1.25) + pad;
         }
-        var lines = wrapLineCount(FRICTIONS[groupIdx], BODY_FONT_SIZE, maxWidth, 0.5);
+        var text = (type === 'approp-desc') ? BLACK_TEXT[groupIdx] : (type === 'desc') ? BLACK_TEXT[groupIdx] : FRICTIONS[groupIdx];
+        // Friction text renders bold (see textBox's `bold` argument),
+        // which runs wider per character than the regular-weight text
+        // used elsewhere, so it needs a bigger width estimate here too.
+        var lines = wrapLineCount(text, BODY_FONT_SIZE, maxWidth, type === 'friction' ? 0.58 : 0.5);
         return pad + lines * (BODY_FONT_SIZE * 1.25) + pad;
       }
 
-      // Snake path of literal squares, no curves. A horizontal run of
-      // `columns` squares, then a vertical run of 1 square at that same
-      // edge column, then a horizontal run back the other way, then
-      // another vertical square at the opposite edge, and so on — the
-      // extra vertical square at each turn is what keep it reading as
-      // a snake instead of a tight zigzag.
-      var TURN_DROP = 1;
+      // Simple boustrophedon rows: a horizontal run of `columns` squares
+      // going right, then the next row immediately below going left, then
+      // right again, and so on — no extra square dropped at the turns.
       function buildPath(columns) {
         var cells = [];
         var n = 1;
@@ -488,17 +421,16 @@
             n++;
             if (i < columns - 1) col += dir;
           }
-          if (n > TOTAL) break;
-          for (var v = 0; v < TURN_DROP && n <= TOTAL; v++) {
-            row += 1;
-            cells.push({ n: n, row: row, col: col });
-            n++;
-          }
-          if (n > TOTAL) break;
           row += 1;
           dir = -dir;
         }
         return cells;
+      }
+
+      function fillColorFor(seg) {
+        var type = seg.type;
+        var isGrey = (type === 'approp-title' || type === 'approp-desc' || type === 'approp-item');
+        return (type === 'friction') ? '#ffcf01' : isGrey ? DARK_GREY : 'black';
       }
 
       function build() {
@@ -510,38 +442,57 @@
         function maxNeededAt(segW) {
           var m = 0;
           for (var mn = 0; mn < SEGMENTS.length; mn++) {
-            var v = requiredHeightForSegment(SEGMENTS[mn].type, SEGMENTS[mn].group, segW);
+            var v = requiredHeightForSegment(SEGMENTS[mn], segW);
             if (v > m) m = v;
           }
           return m;
         }
 
-        // Start with as many columns as fit at MIN_SQUARE, then shrink
-        // the column count (growing each square) until every segment's
-        // text actually fits inside a square of that size.
-        var columns = Math.max(1, Math.floor((containerWidth + GAP) / (MIN_SQUARE + GAP)));
-        var squareSize;
-        while (true) {
-          squareSize = Math.floor((containerWidth - (columns - 1) * GAP) / columns);
-          var maxNeeded = maxNeededAt(squareSize);
-          if (maxNeeded <= squareSize || columns <= 1) {
-            squareSize = Math.max(squareSize, maxNeeded);
-            break;
+        // Start with as many columns as fit at MIN_SQUARE within the
+        // given width, then shrink the column count (growing each
+        // square) until every segment's text actually fits.
+        function fitColumns(rowWidth) {
+          var columns = Math.max(1, Math.floor((rowWidth + GAP) / (MIN_SQUARE + GAP)));
+          var squareSize;
+          while (true) {
+            squareSize = Math.floor((rowWidth - (columns - 1) * GAP) / columns);
+            var maxNeeded = maxNeededAt(squareSize);
+            if (maxNeeded <= squareSize || columns <= 1) {
+              squareSize = Math.max(squareSize, maxNeeded);
+              break;
+            }
+            columns--;
           }
-          columns--;
+          // Prefer at least 2 columns down to 400px wide — but only if 2
+          // columns actually fit without forcing squares wider than
+          // their column slot.
+          if (columns < 2 && rowWidth >= 400) {
+            var trialSize = Math.floor((rowWidth - GAP) / 2);
+            var trialNeeded = maxNeededAt(trialSize);
+            if (trialNeeded <= trialSize) {
+              columns = 2;
+              squareSize = trialSize;
+            }
+          }
+          squareSize = Math.max(MIN_SQUARE, squareSize - 60);
+          return { columns: columns, squareSize: squareSize };
         }
 
-        // Prefer at least 2 columns down to 400px wide — but only if 2
-        // columns actually fit without forcing squares wider than their
-        // column slot (which would overflow the row instead of wrapping).
-        if (columns < 2 && containerWidth >= 400) {
-          var trialSize = Math.floor((containerWidth - GAP) / 2);
-          var trialNeeded = maxNeededAt(trialSize);
-          if (trialNeeded <= trialSize) {
-            columns = 2;
-            squareSize = trialSize;
-          }
-        }
+        // The curve connecting one row to the next bulges outward past
+        // the grid's own left/right edge by its radius, so the columns
+        // need to fit within a narrower width that leaves room for that
+        // bulge — figured out here in two passes since the radius itself
+        // depends on the square size the fit produces.
+        var estimate = fitColumns(containerWidth);
+        var estRadius = (estimate.squareSize + ROW_GAP) / 2;
+        var estMargin = estRadius + 5;
+        var rowWidth = Math.max(containerWidth - 2 * estMargin, MIN_SQUARE);
+
+        var fit = fitColumns(rowWidth);
+        var columns = fit.columns;
+        var squareSize = fit.squareSize;
+        var radius = (squareSize + ROW_GAP) / 2;
+        var MARGIN = radius + 5;
 
         var cells = buildPath(columns);
         var maxRow = 0;
@@ -549,17 +500,35 @@
         var rows = maxRow + 1;
 
         var vbWidth = containerWidth;
-        var vbHeight = rows * squareSize + (rows - 1) * GAP;
+        var vbHeight = rows * squareSize + (rows - 1) * ROW_GAP;
         svg.setAttribute('viewBox', '0 0 ' + vbWidth + ' ' + vbHeight);
         svg.setAttribute('preserveAspectRatio', 'none');
 
         while (svg.firstChild) svg.removeChild(svg.firstChild);
 
-        // Rounding when squareSize is computed from containerWidth can
-        // leave a few leftover pixels on the right — center the grid in
-        // that leftover space instead of leaving it flush left.
+        // Rounding when squareSize is computed from rowWidth can leave a
+        // few leftover pixels — center the grid in that leftover space
+        // within its margin-inset row width.
         var gridWidth = columns * squareSize + (columns - 1) * GAP;
-        var xOffset = Math.max(0, (containerWidth - gridWidth) / 2);
+        var xOffset = MARGIN + Math.max(0, (rowWidth - gridWidth) / 2);
+
+        // Curves first, squares and text on top — a stroked arc this
+        // thick can geometrically dip back across the column it's
+        // connecting to, and drawing the squares afterward guarantees
+        // that overlap is always covered rather than covering any text.
+        for (var i = 0; i < cells.length - 1; i++) {
+          var cur = cells[i];
+          var next = cells[i + 1];
+          if (cur.row === next.row) continue;
+
+          var leftToRight = (cur.row % 2 === 0);
+          var curveX = xOffset + cur.col * (squareSize + GAP) + (leftToRight ? squareSize : 0);
+          var y1 = cur.row * (squareSize + ROW_GAP) + squareSize / 2;
+          var y2 = next.row * (squareSize + ROW_GAP) + squareSize / 2;
+          var sweep = leftToRight ? 1 : 0;
+          var nextSeg = SEGMENTS[next.n - 1];
+          svg.appendChild(semicircle(curveX, y1, y2, sweep, squareSize, fillColorFor(nextSeg)));
+        }
 
         cells.forEach(function (c) {
           var seg = SEGMENTS[c.n - 1];
@@ -567,19 +536,23 @@
           var groupIdx = seg.group;
 
           var x = xOffset + c.col * (squareSize + GAP);
-          var topY = c.row * (squareSize + GAP);
+          var topY = c.row * (squareSize + ROW_GAP);
           var cy = topY + squareSize / 2;
 
-          var fillColor = (type === 'friction') ? '#ffcf01' : (type === 'titledesc' || type === 'list') ? DARK_GREY : 'black';
-          svg.appendChild(square(x, topY, squareSize, fillColor));
+          svg.appendChild(square(x, topY, squareSize, fillColorFor(seg)));
 
-          if (type === 'stepbox') {
+          if (type === 'title') {
             svg.appendChild(label(x, cy, squareSize, groupIdx));
-            svg.appendChild(stepTitleBody(x, cy, squareSize, squareSize, TITLES[groupIdx], BLACK_TEXT[groupIdx], DURATIONS[groupIdx]));
-          } else if (type === 'titledesc') {
-            svg.appendChild(titleDescBox(x, cy, squareSize, squareSize, TITLES[groupIdx], BLACK_TEXT[groupIdx]));
-          } else if (type === 'list') {
-            svg.appendChild(listBox(x, cy, squareSize, squareSize, APPROP_LIST));
+            svg.appendChild(stepTitle(x, cy, squareSize, squareSize, TITLES[groupIdx], DURATIONS[groupIdx]));
+          } else if (type === 'desc') {
+            svg.appendChild(textBox(x, cy, squareSize, squareSize, BLACK_TEXT[groupIdx], 'white'));
+          } else if (type === 'approp-title') {
+            svg.appendChild(headingBox(x, cy, squareSize, squareSize, TITLES[groupIdx]));
+          } else if (type === 'approp-desc') {
+            svg.appendChild(textBox(x, cy, squareSize, squareSize, BLACK_TEXT[groupIdx], 'white'));
+          } else if (type === 'approp-item') {
+            var itemText = (seg.item + 1) + '. ' + APPROP_LIST[seg.item];
+            svg.appendChild(textBox(x, cy, squareSize, squareSize, itemText, 'white'));
           } else {
             svg.appendChild(textBox(x, cy, squareSize, squareSize, FRICTIONS[groupIdx], 'black', true));
           }

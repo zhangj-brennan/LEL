@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Officer P&rsquo;s Journey</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../style.css">
 </head>
 <body>
   <div id="container">
-    <div class="op-intro-row">
+    <div class="figure-label">Figure 3</div>
+    <div class="op-intro-row" style="border-top: 2px solid black; padding-top: 12px;">
       <div class="op-intro">
         <h2>Meet Officer P</h2>
         <p>Officer P is a veteran police officer in a small rural town who sees the same challenges every day: overdoses, behavioral health crises, and homelessness. He knows that jail, the main tool he has at hand, will not help steer people toward sobriety or stable lives.</p>
@@ -18,11 +19,22 @@
       </div>
     </div>
 
-    <div class="figure-label">Figure 3</div>
-    <div id="title">
-      <h1>Officer P&rsquo;s Journey</h1>
+    <div class="op-appropriations" style="margin-bottom: 32px;">
+      <h2>Appropriations Process</h2>
+      <p>Before Officer P begins searching for grants, the annual appropriations process determines how much funding is available for DOJ grant programs. This process can affect when grant opportunities are announced and whether awards can be made.</p>
+      <ol class="op-approp-list">
+        <li>Agencies submit budget requests to OMB</li>
+        <li>President submits budget request to Congress</li>
+        <li>Congress holds hearings and passes appropriations, which the President signs into law</li>
+        <li>OMB apportions funds to agencies</li>
+        <li>Agencies release NOFOs based on available or anticipated funding</li>
+      </ol>
     </div>
-    <p class="deck">This hypothetical scenario draws on real-world experiences shared by law enforcement leaders, along with information from resources and experts on DOJ funding.</p>
+
+    <div class="op-journey" style="margin-bottom: 28px;">
+      <h2>Officer P&rsquo;s Journey</h2>
+      <p class="deck">This hypothetical scenario draws on real-world experiences shared by law enforcement leaders, along with information from resources and experts on DOJ funding.</p>
+    </div>
 
     <svg class="pathc-spine" aria-hidden="true"></svg>
 
@@ -64,10 +76,17 @@
       var GAP = 2;             // gap between squares in the same row
       var ROW_GAP = 40;        // gap between rows
       var DARK_GREY = '#4d4d4d'; // background for the black description squares (title squares stay black)
-      var NUMBER_FONT_SIZE = 28; // step number badge, e.g. "1"
+      var NUMBER_FONT_SIZE = 15; // step number inside its circle badge on the line
+      var FADE_LENGTH = 50;      // px over which a yellow piece blends into a neighboring black one
+      var WOBBLE = 7;            // max up/down drift (px) of the wobbly yellow friction segments
+      var BADGE_SIZE = 30;       // diameter of the black number circle (matches WARNING_SIZE)
       var TITLE_FONT_SIZE = 16;  // step title text, e.g. "Learn About the Funding Process"
       var BODY_FONT_SIZE = 12;   // minimum size for description/friction/list body text
-      var DURATION_FONT_SIZE = 12; // minimum size for the yellow time-marker labels
+      var DURATION_FONT_SIZE = 12; // minimum size for the time-marker labels
+      var LINE_WIDTH = 10;       // stroke width of the path line and its curves
+      var WARNING_SIZE = 30;     // height/width of the caution diamond on yellow segments
+      var PATH_COLOR = 'black'; // path line, curves, and step numbers
+      var TEXT_COLOR = 'black';  // text now sits on the page background, under the line
 
       var TITLES = [
         'Appropriations Process',
@@ -139,18 +158,11 @@
         'He does not know whether future appropriations will fund another grant cycle, so he encourages community members to ask their members of Congress to support continued funding.'
       ];
 
-      // Explicit list of squares in path order. Group 0 (Appropriations
-      // Process) is now a grey heading square, a grey paragraph square,
-      // and each of the 5 list items in its own grey square. Groups 1-9
-      // are each a separate number/title square and description square,
-      // followed by their friction square.
-      var SEGMENTS = [
-        { type: 'approp-title', group: 0 },
-        { type: 'approp-desc', group: 0 }
-      ];
-      for (var li = 0; li < 5; li++) {
-        SEGMENTS.push({ type: 'approp-item', group: 0, item: li });
-      }
+      // Explicit list of segments in path order. The Appropriations
+      // Process (group 0) is an HTML list above the graphic, so the path
+      // starts at step 1. Groups 1-9 are each a number/title segment and
+      // a description segment, followed by their friction segment.
+      var SEGMENTS = [];
       for (var g = 1; g <= 9; g++) {
         SEGMENTS.push({ type: 'title', group: g });
         SEGMENTS.push({ type: 'desc', group: g });
@@ -186,22 +198,180 @@
         return el;
       }
 
-      function label(leftX, centerY, strokeWidth, n) {
-        var pad = 10;
+      // Yellow caution diamond with a black outline and "!" centered at
+      // (x, cy), marking each yellow friction segment on the line.
+      function warningSign(x, cy) {
+        var h = WARNING_SIZE / 2;
+        var g = document.createElementNS(NS, 'g');
+
+        var diamond = document.createElementNS(NS, 'path');
+        diamond.setAttribute('d', 'M' + x + ',' + (cy - h) + ' L' + (x + h) + ',' + cy + ' L' + x + ',' + (cy + h) + ' L' + (x - h) + ',' + cy + ' Z');
+        diamond.setAttribute('fill', '#ffcf01');
+        diamond.setAttribute('stroke', 'black');
+        diamond.setAttribute('stroke-width', 3);
+        diamond.setAttribute('stroke-linejoin', 'round');
+        g.appendChild(diamond);
+
+        var bar = document.createElementNS(NS, 'rect');
+        bar.setAttribute('x', x - 1.5);
+        bar.setAttribute('y', cy - h * 0.48);
+        bar.setAttribute('width', 3);
+        bar.setAttribute('height', h * 0.62);
+        bar.setAttribute('rx', 1.2);
+        bar.setAttribute('fill', 'black');
+        g.appendChild(bar);
+
+        var dot = document.createElementNS(NS, 'circle');
+        dot.setAttribute('cx', x);
+        dot.setAttribute('cy', cy + h * 0.38);
+        dot.setAttribute('r', 1.9);
+        dot.setAttribute('fill', 'black');
+        g.appendChild(dot);
+
+        return g;
+      }
+
+      // Wobbly offset for a yellow friction segment at t (0-1 along it).
+      // Each segment gets its own mix of waves, seeded by its step number
+      // so the shape stays the same across resizes. The sin(pi t)^2
+      // envelope brings it back to flat at both ends so it always meets
+      // the straight path it connects to.
+      function rawWobble(seed, t) {
+        var y = 0;
+        for (var k = 4; k <= 9; k++) {
+          var r1 = Math.sin(seed * 12.9898 + k * 78.233) * 43758.5453;
+          var r2 = Math.sin(seed * 39.3468 + k * 11.135) * 24634.6345;
+          var amp = (r1 - Math.floor(r1)) * 2 - 1;
+          var phase = (r2 - Math.floor(r2)) * Math.PI * 2;
+          y += amp * Math.sin(k * Math.PI * t + phase);
+        }
+        // Steep ramp at the ends so the squiggle is near full size for
+        // most of the segment but still flattens out where it connects.
+        return Math.pow(Math.sin(Math.PI * t), 0.6) * Math.sin(Math.PI * t) * y;
+      }
+
+      // Scale each segment so its biggest bump is WOBBLE px, however
+      // its random mix happened to come out.
+      var wobblePeaks = {};
+      function wobbleAt(seed, t) {
+        if (!wobblePeaks[seed]) {
+          var peak = 0;
+          for (var i = 0; i <= 100; i++) peak = Math.max(peak, Math.abs(rawWobble(seed, i / 100)));
+          wobblePeaks[seed] = peak || 1;
+        }
+        return WOBBLE * rawWobble(seed, t) / wobblePeaks[seed];
+      }
+
+      function hexToRgb(hex) {
+        if (hex === 'black') return [0, 0, 0];
+        var n = parseInt(hex.replace('#', ''), 16);
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      }
+
+      function mixColor(a, b, t) {
+        var ca = hexToRgb(a), cb = hexToRgb(b);
+        return 'rgb(' + ca.map(function (v, k) { return Math.round(v + (cb[k] - v) * t); }).join(',') + ')';
+      }
+
+      // Strokes a wobbly polyline in `color`. If startColor / endColor is
+      // given, the first / last FADE_LENGTH px along the line blend from
+      // that neighbor's color into `color`, drawn as short overlapping
+      // pieces so the blend follows the line around bends and curves.
+      function fadedStroke(points, color, startColor, endColor) {
+        var g = document.createElementNS(NS, 'g');
+        var d = points.map(function (pt, i) { return (i ? 'L' : 'M') + pt[0].toFixed(2) + ',' + pt[1].toFixed(2); }).join(' ');
+        var base = document.createElementNS(NS, 'path');
+        base.setAttribute('d', d);
+        base.setAttribute('fill', 'none');
+        base.setAttribute('stroke', color);
+        base.setAttribute('stroke-width', LINE_WIDTH);
+        base.setAttribute('stroke-linejoin', 'round');
+        base.setAttribute('stroke-linecap', 'butt');
+        g.appendChild(base);
+
+        function fadeFrom(pts, neighborColor) {
+          var dist = 0;
+          for (var i = 0; i < pts.length - 1 && dist < FADE_LENGTH; i++) {
+            var a = pts[i], b = pts[i + 1];
+            var len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+            var t = Math.min(1, (dist + len / 2) / FADE_LENGTH);
+            t = t * t * (3 - 2 * t); // ease in and out
+            var piece = document.createElementNS(NS, 'line');
+            piece.setAttribute('x1', a[0]);
+            piece.setAttribute('y1', a[1]);
+            piece.setAttribute('x2', b[0]);
+            piece.setAttribute('y2', b[1]);
+            piece.setAttribute('stroke', mixColor(neighborColor, color, t));
+            piece.setAttribute('stroke-width', LINE_WIDTH);
+            // Round caps fill the wedge-shaped seams between pieces on
+            // bends; the first one tucks under the neighbor's own line.
+            piece.setAttribute('stroke-linecap', i === 0 ? 'butt' : 'round');
+            g.appendChild(piece);
+            dist += len;
+          }
+        }
+        if (startColor) fadeFrom(points, startColor);
+        if (endColor) fadeFrom(points.slice().reverse(), endColor);
+        return g;
+      }
+
+      function wobblyLine(x1, x2, lineY, seed, color, startColor, endColor) {
+        var steps = 120;
+        var points = [];
+        for (var i = 0; i <= steps; i++) {
+          var t = i / steps;
+          points.push([x1 + (x2 - x1) * t, lineY + wobbleAt(seed, t)]);
+        }
+        return fadedStroke(points, color, startColor, endColor);
+      }
+
+      // Yellow row-to-row connector: the same semicircle as semicircle(),
+      // but with its radius nudged in and out by wobbleAt() so it matches
+      // the wobbly friction segments. The wobble is zero at both ends, so
+      // it still meets the rows above and below exactly.
+      function wobblySemicircle(x, y1, y2, sweep, seed, color, startColor, endColor) {
+        var radius = Math.abs(y2 - y1) / 2;
+        var cy = (y1 + y2) / 2;
+        var dir = sweep ? 1 : -1;
+        var steps = 160;
+        var points = [];
+        for (var i = 0; i <= steps; i++) {
+          var t = i / steps;
+          var angle = -Math.PI / 2 + Math.PI * t;
+          var r = radius + wobbleAt(seed, t);
+          points.push([x + dir * Math.cos(angle) * r, cy + Math.sin(angle) * r]);
+        }
+        return fadedStroke(points, color, startColor, endColor);
+      }
+
+      // Black circle with the white step number, centered at (x, cy) on
+      // the line, the same way warningSign() marks the friction segments.
+      function numberBadge(x, cy, n) {
+        var g = document.createElementNS(NS, 'g');
+
+        var circle = document.createElementNS(NS, 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', cy);
+        circle.setAttribute('r', BADGE_SIZE / 2);
+        circle.setAttribute('fill', 'black');
+        g.appendChild(circle);
+
         var el = document.createElementNS(NS, 'text');
-        el.setAttribute('x', leftX + pad);
-        el.setAttribute('y', centerY - strokeWidth / 2 + pad);
+        el.setAttribute('x', x);
+        el.setAttribute('y', cy);
         el.setAttribute('fill', 'white');
-        el.setAttribute('text-anchor', 'start');
-        el.setAttribute('dominant-baseline', 'hanging');
+        el.setAttribute('text-anchor', 'middle');
+        el.setAttribute('dominant-baseline', 'central');
         el.setAttribute('font-family', 'BentonStrong, sans-serif');
         el.setAttribute('font-size', NUMBER_FONT_SIZE);
         el.textContent = n;
-        return el;
+        g.appendChild(el);
+
+        return g;
       }
 
-      // Number/title square used for steps 1-9 — the number badge (drawn
-      // separately by label()) plus the title and duration, no
+      // Number/title square used for steps 1-9 — the title and duration
+      // (the number sits on the line via numberBadge()), no
       // description text (that lives in its own square via textBox()).
       function stepTitle(leftX, centerY, strokeWidth, segW, text, duration) {
         var pad = 10;
@@ -226,13 +396,12 @@
 
         var el = document.createElementNS(NS, 'text');
         el.setAttribute('x', leftX + pad);
-        el.setAttribute('fill', 'white');
+        el.setAttribute('fill', TEXT_COLOR);
         el.setAttribute('text-anchor', 'start');
         el.setAttribute('font-family', 'Benton, sans-serif');
         el.setAttribute('font-size', fontSize);
 
-        var numberSpace = NUMBER_FONT_SIZE * 1.3;
-        var startY = centerY - strokeWidth / 2 + pad + numberSpace + fontSize - 7;
+        var startY = centerY - strokeWidth / 2 + pad + fontSize;
         var lineHeight = fontSize * 1.3;
         lines.forEach(function (lineText, i) {
           var tspan = document.createElementNS(NS, 'tspan');
@@ -249,7 +418,7 @@
           durationTspan.setAttribute('font-size', DURATION_FONT_SIZE);
           durationTspan.setAttribute('font-family', 'BentonMedium, sans-serif');
           durationTspan.setAttribute('letter-spacing', '0.3');
-          durationTspan.setAttribute('fill', '#ffcf01');
+          durationTspan.setAttribute('fill', DARK_GREY);
           durationTspan.textContent = duration.toUpperCase();
           el.appendChild(durationTspan);
         }
@@ -281,7 +450,7 @@
 
         var el = document.createElementNS(NS, 'text');
         el.setAttribute('x', leftX + pad);
-        el.setAttribute('fill', 'white');
+        el.setAttribute('fill', TEXT_COLOR);
         el.setAttribute('text-anchor', 'start');
         el.setAttribute('font-family', 'BentonStrong, sans-serif');
         el.setAttribute('font-size', fontSize);
@@ -386,8 +555,7 @@
         var maxWidth = Math.max(40, segW - pad * 2);
         if (type === 'title') {
           var titleLines = wrapLineCount(TITLES[groupIdx], TITLE_FONT_SIZE, maxWidth, 0.55);
-          var numberSpace = NUMBER_FONT_SIZE * 1.3;
-          var titleBlock = numberSpace + titleLines * (TITLE_FONT_SIZE * 1.3);
+          var titleBlock = titleLines * (TITLE_FONT_SIZE * 1.3);
           var durationSpace = DURATIONS[groupIdx] ? (DURATION_FONT_SIZE + 6) : 0;
           return pad + titleBlock + durationSpace + pad;
         }
@@ -430,7 +598,7 @@
       function fillColorFor(seg) {
         var type = seg.type;
         var isGrey = (type === 'approp-title' || type === 'approp-desc' || type === 'approp-item');
-        return (type === 'friction') ? '#ffcf01' : isGrey ? DARK_GREY : 'black';
+        return (type === 'friction') ? '#ffcf01' : isGrey ? DARK_GREY : PATH_COLOR;
       }
 
       function build() {
@@ -478,29 +646,62 @@
           return { columns: columns, squareSize: squareSize };
         }
 
+        // Each row is only as tall as its own longest text, so rows with
+        // shorter paragraphs sit closer together and their connecting
+        // curves come out smaller.
+        function rowHeightsFor(columns, segW) {
+          var heights = [];
+          buildPath(columns).forEach(function (c) {
+            var need = Math.ceil(requiredHeightForSegment(SEGMENTS[c.n - 1], segW));
+            heights[c.row] = Math.max(heights[c.row] || 0, need);
+          });
+          return heights;
+        }
+
+        function maxOf(arr) {
+          return arr.reduce(function (m, v) { return Math.max(m, v); }, 0);
+        }
+
         // The curve connecting one row to the next bulges outward past
         // the grid's own left/right edge by its radius, so the columns
-        // need to fit within a narrower width that leaves room for that
-        // bulge — figured out here in two passes since the radius itself
-        // depends on the square size the fit produces.
+        // need to fit within a narrower width that leaves room for the
+        // biggest bulge — figured out in passes since the radius depends
+        // on the row heights the fit produces.
         var estimate = fitColumns(containerWidth);
-        var estRadius = (estimate.squareSize + ROW_GAP) / 2;
-        var estMargin = estRadius + 5;
-        var rowWidth = Math.max(containerWidth - 2 * estMargin, MIN_SQUARE);
-
+        var estRadius = (maxOf(rowHeightsFor(estimate.columns, estimate.squareSize)) + ROW_GAP) / 2;
+        var rowWidth = Math.max(containerWidth - 2 * (estRadius + 5), MIN_SQUARE);
         var fit = fitColumns(rowWidth);
+        var rowHeights = rowHeightsFor(fit.columns, fit.squareSize);
+
+        var refinedRadius = (maxOf(rowHeights) + ROW_GAP) / 2;
+        var refinedWidth = Math.max(containerWidth - 2 * (refinedRadius + 5), MIN_SQUARE);
+        var refit = fitColumns(refinedWidth);
+        var refitHeights = rowHeightsFor(refit.columns, refit.squareSize);
+        // Only take the wider fit if its curves still fit in the margin.
+        if ((maxOf(refitHeights) + ROW_GAP) / 2 <= refinedRadius) {
+          rowWidth = refinedWidth;
+          fit = refit;
+          rowHeights = refitHeights;
+        }
+
         var columns = fit.columns;
         var squareSize = fit.squareSize;
-        var radius = (squareSize + ROW_GAP) / 2;
-        var MARGIN = radius + 5;
+        var MARGIN = (containerWidth - rowWidth) / 2;
 
         var cells = buildPath(columns);
-        var maxRow = 0;
-        cells.forEach(function (c) { if (c.row > maxRow) maxRow = c.row; });
-        var rows = maxRow + 1;
+        var rows = rowHeights.length;
 
+        // The line runs along the top of each row with its text hanging
+        // beneath it; offset everything down so the line isn't clipped.
+        var TOP_PAD = LINE_WIDTH / 2;
+        var rowY = [];
+        var yCursor = TOP_PAD;
+        for (var r = 0; r < rows; r++) {
+          rowY[r] = yCursor;
+          yCursor += rowHeights[r] + ROW_GAP;
+        }
         var vbWidth = containerWidth;
-        var vbHeight = rows * squareSize + (rows - 1) * ROW_GAP;
+        var vbHeight = yCursor - ROW_GAP;
         svg.setAttribute('viewBox', '0 0 ' + vbWidth + ' ' + vbHeight);
         svg.setAttribute('preserveAspectRatio', 'none');
 
@@ -512,10 +713,9 @@
         var gridWidth = columns * squareSize + (columns - 1) * GAP;
         var xOffset = MARGIN + Math.max(0, (rowWidth - gridWidth) / 2);
 
-        // Curves first, squares and text on top — a stroked arc this
-        // thick can geometrically dip back across the column it's
-        // connecting to, and drawing the squares afterward guarantees
-        // that overlap is always covered rather than covering any text.
+        // Thin curves connect the line at the end of one row to the line
+        // at the start of the next, bulging outside the grid so they never
+        // cross the text below each row's line.
         for (var i = 0; i < cells.length - 1; i++) {
           var cur = cells[i];
           var next = cells[i + 1];
@@ -523,11 +723,23 @@
 
           var leftToRight = (cur.row % 2 === 0);
           var curveX = xOffset + cur.col * (squareSize + GAP) + (leftToRight ? squareSize : 0);
-          var y1 = cur.row * (squareSize + ROW_GAP) + squareSize / 2;
-          var y2 = next.row * (squareSize + ROW_GAP) + squareSize / 2;
+          var y1 = rowY[cur.row];
+          var y2 = rowY[next.row];
           var sweep = leftToRight ? 1 : 0;
+          var curSeg = SEGMENTS[cur.n - 1];
           var nextSeg = SEGMENTS[next.n - 1];
-          svg.appendChild(semicircle(curveX, y1, y2, sweep, squareSize, fillColorFor(nextSeg)));
+          // A curve touching a yellow friction segment at either end is
+          // yellow and wobbly too; otherwise it takes the next row's color.
+          var frictionSeg = (curSeg.type === 'friction') ? curSeg : (nextSeg.type === 'friction') ? nextSeg : null;
+          if (frictionSeg) {
+            // Offset seed so the curve doesn't copy its segment's wobble.
+            // Blend into whichever end touches a black segment.
+            var curveStart = (curSeg.type === 'friction') ? null : fillColorFor(curSeg);
+            var curveEnd = (nextSeg.type === 'friction') ? null : fillColorFor(nextSeg);
+            svg.appendChild(wobblySemicircle(curveX, y1, y2, sweep, frictionSeg.group + 100, fillColorFor(frictionSeg), curveStart, curveEnd));
+          } else {
+            svg.appendChild(semicircle(curveX, y1, y2, sweep, LINE_WIDTH, fillColorFor(nextSeg)));
+          }
         }
 
         cells.forEach(function (c) {
@@ -536,25 +748,65 @@
           var groupIdx = seg.group;
 
           var x = xOffset + c.col * (squareSize + GAP);
-          var topY = c.row * (squareSize + ROW_GAP);
-          var cy = topY + squareSize / 2;
+          var lineY = rowY[c.row];
+          // Text boxes are squareSize wide and as tall as their row, with
+          // the top edge just under the line.
+          var h = rowHeights[c.row];
+          var cy = lineY + LINE_WIDTH / 2 + h / 2;
 
-          svg.appendChild(square(x, topY, squareSize, fillColorFor(seg)));
+          // Stretch the line across the gap toward the next segment in the
+          // same row, so the path reads as one continuous line while the
+          // text columns below keep their spacing.
+          var x1 = x, x2 = x + squareSize;
+          var nextCell = cells[c.n];
+          if (nextCell && nextCell.row === c.row) {
+            if (nextCell.col > c.col) x2 += GAP; else x1 -= GAP;
+          }
+          if (type === 'friction') {
+            // Blend into black on whichever side has a black segment in
+            // the same row (a row end meets a yellow curve instead).
+            var prevCell = cells[c.n - 2];
+            var leftColor = null, rightColor = null;
+            [prevCell, nextCell].forEach(function (nb) {
+              if (!nb || nb.row !== c.row) return;
+              var nbSeg = SEGMENTS[nb.n - 1];
+              if (nbSeg.type === 'friction') return;
+              if (nb.col < c.col) leftColor = fillColorFor(nbSeg); else rightColor = fillColorFor(nbSeg);
+            });
+            svg.appendChild(wobblyLine(x1, x2, lineY, groupIdx, fillColorFor(seg), leftColor, rightColor));
+          } else {
+            var line = document.createElementNS(NS, 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y1', lineY);
+            line.setAttribute('y2', lineY);
+            line.setAttribute('stroke', fillColorFor(seg));
+            line.setAttribute('stroke-width', LINE_WIDTH);
+            svg.appendChild(line);
+          }
+
+          // Caution sign in the middle of each yellow segment's line (riding
+          // the wobble), nudged up a little so its bottom point clears the
+          // text below.
+          if (type === 'friction') {
+            var midT = (x + squareSize / 2 - x1) / (x2 - x1);
+            svg.appendChild(warningSign(x + squareSize / 2, lineY + wobbleAt(groupIdx, midT) - 4));
+          }
+          if (type === 'title') svg.appendChild(numberBadge(x + squareSize / 2, lineY - 4, groupIdx));
 
           if (type === 'title') {
-            svg.appendChild(label(x, cy, squareSize, groupIdx));
-            svg.appendChild(stepTitle(x, cy, squareSize, squareSize, TITLES[groupIdx], DURATIONS[groupIdx]));
+            svg.appendChild(stepTitle(x, cy, h, squareSize, TITLES[groupIdx], DURATIONS[groupIdx]));
           } else if (type === 'desc') {
-            svg.appendChild(textBox(x, cy, squareSize, squareSize, BLACK_TEXT[groupIdx], 'white'));
+            svg.appendChild(textBox(x, cy, h, squareSize, BLACK_TEXT[groupIdx], TEXT_COLOR));
           } else if (type === 'approp-title') {
-            svg.appendChild(headingBox(x, cy, squareSize, squareSize, TITLES[groupIdx]));
+            svg.appendChild(headingBox(x, cy, h, squareSize, TITLES[groupIdx]));
           } else if (type === 'approp-desc') {
-            svg.appendChild(textBox(x, cy, squareSize, squareSize, BLACK_TEXT[groupIdx], 'white'));
+            svg.appendChild(textBox(x, cy, h, squareSize, BLACK_TEXT[groupIdx], TEXT_COLOR));
           } else if (type === 'approp-item') {
             var itemText = (seg.item + 1) + '. ' + APPROP_LIST[seg.item];
-            svg.appendChild(textBox(x, cy, squareSize, squareSize, itemText, 'white'));
+            svg.appendChild(textBox(x, cy, h, squareSize, itemText, TEXT_COLOR));
           } else {
-            svg.appendChild(textBox(x, cy, squareSize, squareSize, FRICTIONS[groupIdx], 'black', true));
+            svg.appendChild(textBox(x, cy, h, squareSize, FRICTIONS[groupIdx], 'black', true));
           }
         });
       }
